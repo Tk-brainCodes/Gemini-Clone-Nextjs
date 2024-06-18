@@ -1,9 +1,4 @@
-import bulb_icon from "./bulb_icon.png";
-import compass_icon from "./compass_icon.png";
-import user_icon from "./user_icon.png";
-import message_icon from "./message_icon.png";
-import code_icon from "./code_icon.png";
-import gemini_icon from "./gemini_icon.png";
+// import gemini_icon from "./gemini_icon.png";
 
 import add_photo from "./icons/add-photo.svg";
 import arrow_dropdown from "./icons/arrow-dropdown.svg";
@@ -35,14 +30,9 @@ export const assets = {
   history_icon,
   menu_icon,
   plus_icon,
-  bulb_icon,
-  compass_icon,
   mic_icon,
-  user_icon,
-  message_icon,
-  code_icon,
   send_icon,
-  gemini_icon,
+  // gemini_icon,
   flight,
   write,
   lightbulb,
