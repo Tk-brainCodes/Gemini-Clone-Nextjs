@@ -2,18 +2,17 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 import createDynamicPromptInput from "@/lib/langchain";
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, prompt: userPrompt } = req.body;
+export async function POST(req: Request, res: NextApiResponse) {
+  const { prompt: userPrompt } = await req.json();
 
   try {
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
     const response = await createDynamicPromptInput(userPrompt);
+
+    console.log("Generated response from route handler:", response); // Debugging line
 
     return NextResponse.json(response);
   } catch (error) {
-    return new NextResponse("GENERATE_CHAT_FAIL", { status: 500 });
+    console.log(error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
 }
