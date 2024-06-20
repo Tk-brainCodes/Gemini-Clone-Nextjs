@@ -92,6 +92,56 @@
     );
   }
 
+  .markdown-content a {
+  color: #007bff; 
+  text-decoration: underline;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.markdown-content p {
+  margin-bottom: 20px;
+}
+
+/* Code block styling */
+.markdown-content pre {
+  background-color: #f0f4f9;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px 12px 0px 0px;
+  -webkit-border-radius: 12px 12px 0px 0px;
+  -moz-border-radius: 12px 12px 0px 0px;
+  -ms-border-radius: 12px 12px 0px 0px;
+  -o-border-radius: 12px 12px 0px 0px;
+}
+
+.markdown-content code {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+}
+
+/* Inline code styling */
+.markdown-content p code,
+.markdown-content li code {
+  background-color: #f0f4f9; /* Light blue background */
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+
   .search-box {
     display: flex;
     align-items: center;
