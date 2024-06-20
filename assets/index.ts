@@ -17,6 +17,7 @@ import flight from "./icons/flight.svg";
 import write from "./icons/write.svg";
 import lightbulb from "./icons/lightbulb.svg";
 import table_restaurant from "./icons/table_restaurant.svg";
+import stop_icon  from './icons/stop_circle.svg'
 
 export const assets = {
   add_photo,
@@ -37,4 +38,5 @@ export const assets = {
   write,
   lightbulb,
   table_restaurant,
+  stop_icon
 };
