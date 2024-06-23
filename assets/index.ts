@@ -18,6 +18,10 @@ import write from "./icons/write.svg";
 import lightbulb from "./icons/lightbulb.svg";
 import table_restaurant from "./icons/table_restaurant.svg";
 import stop_icon  from './icons/stop_circle.svg'
+import user_icon from './icons/user_icon.png'
+import gemini_icon from './icons/gemini_icon.png'
+import edit_icon from './icons/edit.svg'
+import content_copy from './icons/content_copy.svg'
 
 export const assets = {
   add_photo,
@@ -33,10 +37,13 @@ export const assets = {
   plus_icon,
   mic_icon,
   send_icon,
-  // gemini_icon,
   flight,
   write,
   lightbulb,
   table_restaurant,
-  stop_icon
+  stop_icon,
+  user_icon,
+  gemini_icon,
+  edit_icon,
+  content_copy
 };
