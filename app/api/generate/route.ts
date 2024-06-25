@@ -8,9 +8,9 @@ export async function POST(req: Request, res: NextApiResponse) {
   try {
     const response = await createDynamicPromptInput(userPrompt);
 
-    console.log("Generated response from route handler:", response); // Debugging line
+    console.log("Generated response from route handler:", response); 
 
-    return NextResponse.json(response);
+    return NextResponse.json({data: response});
   } catch (error) {
     console.log(error);
     return new NextResponse("Internal Error", { status: 500 });
