@@ -22,6 +22,8 @@ import user_icon from './icons/user_icon.png'
 import gemini_icon from './icons/gemini_icon.png'
 import edit_icon from './icons/edit.svg'
 import content_copy from './icons/content_copy.svg'
+import volume_up from './icons/volume_up.svg'
+import keyboard_arrow from './icons/keyboard_arrow.svg'
 
 export const assets = {
   add_photo,
@@ -45,5 +47,7 @@ export const assets = {
   user_icon,
   gemini_icon,
   edit_icon,
-  content_copy
+  content_copy,
+  volume_up,
+  keyboard_arrow,
 };
