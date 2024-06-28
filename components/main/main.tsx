@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useRouter } from 'next/navigation'
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
-  setPrompt,
   addUserMessage,
   fetchGeneratedText,
-  selectPrompt,
-  selectMessages,
+  selectCurrentSession,
   selectStatus,
   selectError,
 } from "@/redux/conversationSlice";
@@ -24,8 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
+import { Toaster, toast } from "sonner";
 import ActionTooltip from "@/components/action-tooltip";
 import WelcomeScreen from "./welcome-screen";
 
@@ -53,7 +51,7 @@ const CodeBlock = ({
       </SyntaxHighlighter>
       <div className='copy_content w-full mt-1 px-4 py-4 h-[40px] bg-[#f8f8ff] flex items-center justify-between'>
         <div className='leading-[14px] text-[#444746]'>
-          Use code{" "}
+          Use code
           <a className='text-underline text-[16px] text-[#0b57d0] cursor-pointer'>
             with caution
           </a>
@@ -70,20 +68,23 @@ const CodeBlock = ({
 };
 
 const AITextGenerator: React.FC = () => {
-  const [showResult, setShowResult] = useState<boolean>(false);
+  const [inputText, setInputText] = useState<string>("");
   const dispatch = useAppDispatch();
-  const prompt = useAppSelector(selectPrompt);
-  const messages = useAppSelector(selectMessages);
+  const router = useRouter();
+
+  const currentSession = useAppSelector(selectCurrentSession);
   const status = useAppSelector(selectStatus);
-  const error = useAppSelector(selectError);
+  const error = useAppSelector(selectError);;
 
   const handleGenerate = () => {
-    dispatch(addUserMessage(prompt));
-    dispatch(fetchGeneratedText({ prompt }));
-    setShowResult(true);
+    if (currentSession) {
+      dispatch(
+        addUserMessage({ sessionId: currentSession.id, text: inputText })
+      );
+      dispatch(fetchGeneratedText({ prompt: inputText }));
+      setInputText("");
+    }
   };
-
-  console.log("messages", messages);
 
   return (
     <div className='w-full bg-white h-screen pb-[15vh] relative overflow-x-hidden'>
@@ -120,7 +121,7 @@ const AITextGenerator: React.FC = () => {
 
       <section className='flex flex-col items-center justify-start'>
         <div className='result w-[712px] mt-[2em]'>
-          {messages.map((message, index) => (
+          {currentSession?.messages.map((message, index) => (
             <div
               key={index}
               className={`my-10 w-full ${
@@ -129,25 +130,18 @@ const AITextGenerator: React.FC = () => {
             >
               <div className='markdown-content w-[712px] flex flex-col items-start justify-start gap-[22px] text-[17px] font-normal text-base leading-[1.7] text-[#1f1f1f] group'>
                 <div className='flex items-center w-full group gap-[20px]'>
-                  { message.sender === "user" ? (
-                    <>
-                    <Image
-                      src={assets.user_icon}
-                      alt='user_icon'
-                      className='w-[36px] h-[36px] cursor-pointer rounded-full'
-                    />
-                    </>
-                  )
-                    : message.sender === "ai" ? (
-                 <>
+                  <>
+                    {message.sender === "user" ? (
                       <Image
-                      src={assets.gemini_icon}
-                      alt='user_icon'
-                      className='w-[36px] h-[36px] hidden cursor-pointer rounded-full'
-                    />
-                 </>
-                    ) : ""
-}
+                        src={assets.user_icon}
+                        alt='user_icon'
+                        className='w-[36px] h-[36px] cursor-pointer rounded-full'
+                      />
+                    ) : (
+                      ""
+                    )}
+                  </>
+
                   <div className='flex-1 mx-2'>
                     {message.sender === "user" ? message.text : ""}
                   </div>
@@ -165,7 +159,7 @@ const AITextGenerator: React.FC = () => {
                 <div className='flex items-start justify-start gap-[20px]'>
                   <Image
                     src={message.sender === "ai" ? assets.gemini_icon : ""}
-                    alt='user_icon'
+                    alt='gemini_icon'
                     className='w-[32px] h-[32px] mt-[0.7em] cursor-pointer rounded-full'
                   />
                   {message.sender === "ai" && (
@@ -228,7 +222,9 @@ const AITextGenerator: React.FC = () => {
           )}
         </div>
 
-        {showResult === false && status !== "succeeded" ? (
+        {currentSession &&
+        currentSession.messages.length === 0 &&
+        status !== "loading" ? (
           <WelcomeScreen />
         ) : (
           ""
@@ -241,8 +237,8 @@ const AITextGenerator: React.FC = () => {
                 placeholder='Enter a text here'
                 className='flex-1 h-[50px] w-[690px] text-[#1f1f1f] bg-transparent border-1 border-blue-400 outline-none focus:outline-none focus:border-none focus:ring-0 p-[8px] text-[18px]'
                 style={{ whiteSpace: "pre-wrap" }}
-                value={prompt}
-                onChange={(e) => dispatch(setPrompt(e.target.value))}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
