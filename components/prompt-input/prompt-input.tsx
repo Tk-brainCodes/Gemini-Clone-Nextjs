@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   addUserMessage,
@@ -18,7 +17,6 @@ const PromptInput = () => {
 
     const [inputText, setInputText] = useState<string>("");
     const dispatch = useAppDispatch();
-    const router = useRouter();
 
     const currentSession = useAppSelector(selectCurrentSession);
     const status = useAppSelector(selectStatus);
