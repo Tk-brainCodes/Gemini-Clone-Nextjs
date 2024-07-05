@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { assets } from "@/assets";
 import { Button } from "@/components/ui/button";
-
 import ActionTooltip from "@/components/action-tooltip";
 
 const MainLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -48,8 +47,11 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
             />
           </div>
         </div>
+            <section className='flex flex-col items-center justify-start'>
+
         {children}
         <PromptInput />
+        </section>
       </div>
     </main>
   );
