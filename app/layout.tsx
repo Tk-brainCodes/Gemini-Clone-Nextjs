@@ -1,12 +1,9 @@
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ReduxProvider } from "@/components/providers/redux-store-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Gemini clone",
@@ -21,7 +18,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang='en'>
-        <body className={inter.className}>
+        <body>
           <ThemeProvider
             attribute='class'
             defaultTheme='dark'
