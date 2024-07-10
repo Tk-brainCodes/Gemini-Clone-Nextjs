@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { usePathname } from "next/navigation";
 import {
-  selectCurrentSession,
   selectStatus,
   selectError,
-  fetchChatsSession,
-  saveChatSession,
   selectSessions,
+  fetchChatsSession,
+  selectCurrentSession,
 } from "@/redux/conversationSlice";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
@@ -18,6 +18,8 @@ import Image from "next/image";
 import { assets } from "@/assets";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
+import { cn } from "@/lib/utils";
 
 const CodeBlock = ({
   language,
@@ -31,20 +33,30 @@ const CodeBlock = ({
     toast("Copied to clipboard");
   };
 
+  const customStyles = {
+    fontFamily: '"Google Sans", sans-serif',
+    fontsize: "18px",
+    fontWeight: 400,
+    lineHeight: "18px",
+    padding: " 16px 16px 22px",
+    backgroundColor: "#f0f4f9",
+    borderRadius: "12px 12px 0px 0px",
+  };
+
   return (
-    <div className='relative'>
+    <div className=''>
       <SyntaxHighlighter
-        className='px-4 py-4  bg-[#f0f4f9] rounded-t-lg rounded-tr-lg'
         style={docco}
         language={language}
+        customStyle={customStyles}
         PreTag='div'
       >
         {value}
       </SyntaxHighlighter>
-      <div className='copy_content w-full mt-1 px-4 py-4 h-[40px] bg-[#f8f8ff] flex items-center justify-between'>
-        <div className='leading-[14px] text-[#444746]'>
+      <div className='copy_content w-full mt-1 px-4 py-4 h-[40px] bg-[#f0f4f9] flex items-center justify-between'>
+        <div className='leading-[16px] text-[16px] font-normal flex text-[#444746] gap-x-2'>
           Use code
-          <a className='text-underline text-[16px] text-[#0b57d0] cursor-pointer'>
+          <a className='text-underline text-[#0b57d0] cursor-pointer'>
             with caution
           </a>
         </div>
@@ -70,21 +82,29 @@ interface ChatSession {
 }
 
 const ChatResponse = () => {
-  const currentSession = useAppSelector(selectCurrentSession);
   const sessions: ChatSession[] = useAppSelector(selectSessions);
-  const status: "idle" | "loading" | "succeeded" | "failed" =
-    useAppSelector(selectStatus);
+  const status = useAppSelector(selectStatus);
   const error = useAppSelector(selectError);
   const dispatch = useAppDispatch();
-  const currentSessionId = currentSession?.id;
+  const pathname = usePathname();
+  const currentSession = useAppSelector(selectCurrentSession);
+  const currentSessionPathId = pathname.split("/").pop();
+  const { user } = useUser();
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    dispatch(fetchChatsSession());
-
-    if (currentSessionId) {
-      dispatch(saveChatSession());
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [currentSessionId, dispatch]);
+  }, [currentSession?.messages]);
+
+  const memoizedFetchSession = useCallback(() => {
+    dispatch(fetchChatsSession());
+  }, [dispatch]);
+
+  useEffect(() => {
+    memoizedFetchSession();
+  }, [memoizedFetchSession]);
 
   if (error) {
     return <div>Something went wrong {error}</div>;
@@ -94,12 +114,15 @@ const ChatResponse = () => {
     return <div>Error: {error}</div>;
   }
 
+  console.log("status:", status);
+
   return (
     <div>
       <Toaster position='bottom-left' />
-      <div className='result w-[712px] mt-[2em]'>
+      <div className='mt-[2em]'>
+        {status === "loading" && <h1>LOADING SESSION</h1>}
         {sessions
-          .filter((curSession) => curSession.id !== currentSession?.id)
+          .filter((curSession) => curSession.id === currentSessionPathId)
           .map((session) => (
             <div key={session.id}>
               {session.messages.map((message, index) => (
@@ -113,9 +136,14 @@ const ChatResponse = () => {
                     <div className='flex items-center w-full group gap-[20px]'>
                       {message.sender == "user" ? (
                         <Image
-                          src={assets.user_icon}
+                          src={user?.imageUrl as string}
                           alt='gemini_icon'
                           className='w-[38px] h-[38px] mt-[0.7em] cursor-pointer rounded-full'
+                          loading='lazy'
+                          width={500}
+                          height={500}
+                          blurDataURL={user?.imageUrl as string}
+                          placeholder='blur'
                         />
                       ) : (
                         ""
@@ -140,7 +168,7 @@ const ChatResponse = () => {
                         <Image
                           src={assets.gemini_icon}
                           alt='gemini_icon'
-                          className='w-[34px] h-[34px] cursor-pointer rounded-full -mt-[0.4em] '
+                          className='w-[34px] h-[34px] rounded-full -mt-[0.8em] '
                         />
                       ) : (
                         ""
@@ -203,17 +231,24 @@ const ChatResponse = () => {
               ))}
             </div>
           ))}
-
         {status === "loading" && (
-          <div className='flex items-start gap-[20px]'>
-            <div className='w-[700px] flex flex-col gap-[10px]'>
-              <hr className='skeleton-loader' />
-              <hr className='skeleton-loader' />
-              <hr className='skeleton-loader w-[70%]' />
+          <div className='flex items-start justify-start gap-x-4'>
+            <Image
+              src={assets.gemini_icon}
+              alt='gemini_icon'
+              className='w-[34px] h-[34px] motion-safe:animate-spin rounded-full -mt-[0.4em] '
+            />
+            <div className='flex items-start gap-[20px]'>
+              <div className='w-[700px] flex flex-col gap-[10px]'>
+                <hr className='skeleton-loader' />
+                <hr className='skeleton-loader' />
+                <hr className='skeleton-loader w-[70%]' />
+              </div>
             </div>
           </div>
         )}
       </div>
+      <div ref={messageContainerRef} className='mb-[1em]' />
     </div>
   );
 };
