@@ -24,6 +24,9 @@ import edit_icon from './icons/edit.svg'
 import content_copy from './icons/content_copy.svg'
 import volume_up from './icons/volume_up.svg'
 import keyboard_arrow from './icons/keyboard_arrow.svg'
+import chat_bubble from './icons/chat_bubble.svg'
+import option from './icons/option.svg'
+import gemini_sparkel from './icons/gemini_sparkle.svg'
 
 export const assets = {
   add_photo,
@@ -50,4 +53,7 @@ export const assets = {
   content_copy,
   volume_up,
   keyboard_arrow,
+  chat_bubble,
+  option,
+  gemini_sparkel
 };
