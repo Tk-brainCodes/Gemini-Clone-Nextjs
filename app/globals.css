@@ -1,85 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:wght@100;300;400;500;700;900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+body {
+  box-sizing: border-box;
+  font-family: "Google Sans", sans-serif;
+}
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
 
 @layer utilities {
   .gradient-text {
-   background: -webkit-linear-gradient(16deg, rgb(66, 133, 244) 0px, rgb(155, 114, 203) 9%, rgb(217, 101, 112) 20%, rgb(217, 101, 112) 24%, rgb(155, 114, 203) 35%, rgb(66, 133, 244) 44%, rgb(155, 114, 203) 50%, rgb(217, 101, 112) 56%, rgb(255, 255, 255) 75%, rgb(255, 255, 255) 100%);    
-   -webkit-background-clip: text;
+    background: -webkit-linear-gradient(
+      16deg,
+      rgb(66, 133, 244) 0px,
+      rgb(155, 114, 203) 9%,
+      rgb(217, 101, 112) 20%,
+      rgb(217, 101, 112) 24%,
+      rgb(155, 114, 203) 35%,
+      rgb(66, 133, 244) 44%,
+      rgb(155, 114, 203) 50%,
+      rgb(217, 101, 112) 56%,
+      rgb(255, 255, 255) 75%,
+      rgb(255, 255, 255) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-family: "Google Sans", "Helvetica Neue", sans-serif;
   }
 
   .background-gradient {
@@ -101,6 +58,11 @@
     border-radius: 4px 4px 12px 12px;
   }
 
+  .body_header {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+
   .markdown-content h1,
   .markdown-content h2,
   .markdown-content h3,
@@ -119,31 +81,28 @@
     margin-bottom: 20px;
   }
 
-.prompt-text-content {
-	font-family: "Google Sans", "Helvetica Neue", sans-serif;
-	font-size: 16px;
-	font-style: normal;
-	font-variant: normal;
-	font-weight: 400;
-	letter-spacing: normal;
-	line-height: 22px;
-	text-decoration: none solid rgb(31, 31, 31);
-	text-align: start;
-	text-indent: 0px;
-	text-transform: none;
-	vertical-align: baseline;
-	white-space: normal;
-	word-spacing: 0px;
-	box-sizing: content-box;
-	resize: none;
-	text-shadow: none;
-	text-overflow: clip;
-	word-wrap: normal;
-	box-shadow: none;
-}
+  .prompt-text-content {
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    letter-spacing: normal;
+    line-height: 22px;
+    text-decoration: none solid rgb(31, 31, 31);
+    text-align: start;
+    text-indent: 0px;
+    text-transform: none;
+    vertical-align: baseline;
+    white-space: normal;
+    word-spacing: 0px;
+    box-sizing: content-box;
+    resize: none;
+    text-shadow: none;
+    text-overflow: clip;
+    word-wrap: normal;
+    box-shadow: none;
+  }
 
-
-  
   /* Code block styling */
   .markdown-content pre {
     padding: 10px;
@@ -160,15 +119,10 @@
     -o-border-radius: 12px 12px 0px 0px;
   }
 
-  .markdown-content code {
-    /* font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace; */
-    /* font-size: 14px; */
-  }
-
   /* Inline code styling */
   .markdown-content p code,
   .markdown-content li code {
-    background-color: #f0f4f9; 
+    background-color: #f0f4f9;
     padding: 2px 4px;
     border-radius: 6px;
   }
@@ -178,19 +132,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    background-color: #f0f4f9;
+    background-color: #e9eef6;
     padding: 10px 20px;
     border-radius: 50px;
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
     -ms-border-radius: 50px;
     -o-border-radius: 50px;
-  }
-
-  .result {
-    max-height: 70vh;
-    margin-bottom: 5em;
-    overflow-y: scroll;
   }
   .result::-webkit-scrollbar {
     display: none;
@@ -217,6 +165,59 @@
     }
     100% {
       background-position: 800px 0px;
+    }
+  }
+
+  .loading_bar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 4px;
+    background: #c2e7ff;
+    overflow: hidden;
+  }
+  .loading_bar div:before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    background: #1a73e8;
+    animation: box-1 2100ms cubic-bezier(0.65, 0.81, 0.73, 0.4) infinite;
+    -webkit-animation: box-1 2100ms cubic-bezier(0.65, 0.81, 0.73, 0.4) infinite;
+  }
+  .loading_bar div:after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    background: #1a73e8;
+    animation: box-2 2100ms cubic-bezier(0.16, 0.84, 0.44, 1) infinite;
+    animation-delay: 1150ms;
+  }
+  @keyframes box-1 {
+    0% {
+      left: -35%;
+      right: 100%;
+    }
+    60%,
+    100% {
+      left: 100%;
+      right: -90%;
+    }
+  }
+  @keyframes box-2 {
+    0% {
+      left: -200%;
+      right: 100%;
+    }
+    60%,
+    100% {
+      left: 107%;
+      right: -8%;
     }
   }
 }
