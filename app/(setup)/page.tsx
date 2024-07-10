@@ -1,25 +1,17 @@
-import { initialProfile } from "@/lib/initial-profile";
+"use client"
+
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import { useAuth } from "@clerk/nextjs";
 
-const SetupPage = async () => {
-  const profile = await initialProfile();
 
-  const chatMessage = await db.chat.findFirst({
-    where: {
-      messages: {
-        some: {
-          profileId: profile?.id,
-        },
-      },
-    },
-  });
+const SetupPage =  () => {
+    const { userId } = useAuth();
 
-  if (chatMessage) {
-    redirect(`/server/${chatMessage.id}`);
+  if (userId) {
+    return redirect("/new-chat");
   }
 
-  return redirect("/new-chat");
+return redirect("/sign-in")
 };
 
 export default SetupPage;
