@@ -1,40 +1,62 @@
-"use client"
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { useRouter, usePathname } from "next/navigation";
 import {
   addUserMessage,
-  fetchGeneratedText,
   selectCurrentSession,
   selectStatus,
-  selectError,
+  selectCurrentSessionId,
+  sendUserPropmtToAI,
+  saveChatSession,
+  startNewSession,
+  setCurrentSession,
 } from "@/redux/conversationSlice";
-import Image from "next/image";
 import { assets } from "@/assets";
 import ActionTooltip from "@/components/action-tooltip";
+import Image from "next/image";
+import { v4 as uuidv4 } from "uuid";
 
 const PromptInput = () => {
+  const [inputText, setInputText] = useState<string>("");
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const pathname = usePathname();
 
-    const [inputText, setInputText] = useState<string>("");
-    const dispatch = useAppDispatch();
+  const currentSession = useAppSelector(selectCurrentSession);
+  const currentSessionId = useAppSelector(selectCurrentSessionId);
+  const status = useAppSelector(selectStatus);
 
-    const currentSession = useAppSelector(selectCurrentSession);
-    const status = useAppSelector(selectStatus);
-    const error = useAppSelector(selectError);
 
-    const handleGenerate = () => {
-      if (currentSession) {
-        dispatch(
-          addUserMessage({ sessionId: currentSession.id, text: inputText })
-        );
-        dispatch(fetchGeneratedText({ prompt: inputText }));
+  const handleGenerate = async () => {
+    if (!inputText.trim()) return;
+
+    if (currentSession?.id) {
+      dispatch(
+        addUserMessage({ sessionId: currentSession.id, text: inputText })
+      );
+      await dispatch(sendUserPropmtToAI({ prompt: inputText }));
+      await dispatch(saveChatSession());
+      setInputText("");
+      router.push(`/chat/${currentSession.id}`);
+    } else {
+      await dispatch(startNewSession());
+      const newSessionId = currentSessionId;
+
+      if (newSessionId) {
+        dispatch(addUserMessage({ sessionId: newSessionId, text: inputText }));
+        await dispatch(sendUserPropmtToAI({ prompt: inputText }));
+        await dispatch(saveChatSession());
         setInputText("");
+        router.push(`/chat/${newSessionId}`);
       }
-    };
-  
+    }
+  };
+
   return (
-    <div className='background-gradient w-[80vw] flex flex-col fixed bottom-0 items-center justify-center'>
-      <div className='search-box mt-[1em]'>
+    <div className=' h-fit bg-white z-10 w-[75vw] flex flex-col fixed bottom-0 items-center justify-center'>
+      <div className='search-box'>
         <div className='relative flex items-center'>
           <textarea
             placeholder='Enter a text here'
