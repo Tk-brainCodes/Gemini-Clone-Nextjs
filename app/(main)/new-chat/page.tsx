@@ -1,4 +1,5 @@
-import WelcomeScreen from "@/components/main/welcome-screen";
+import WelcomeScreen from "@/components/welcome-screen/welcome-screen";
+
 
 const NewChat = () => {
   return <div className="mt-[6em]">
