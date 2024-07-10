@@ -24,8 +24,9 @@ export async function POST(req: Request, res: NextResponse) {
 
         if (chatSession) {
           await db.chat.update({
-            where: { id: session.id, profileId: profile?.id },
+            where: { id: session.id },
             data: {
+              profile: { connect: { id: profile?.id! } },
               messages: {
                 deleteMany: {},
                 create: session.messages.map((message: any) => ({
