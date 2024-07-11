@@ -1,40 +1,26 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import type { RootState } from "./store";
-
-interface Message {
-  sender: "user" | "ai";
-  text: string;
-}
-
-interface ChatSession {
-  id: string;
-  messages: Message[];
-}
-
-interface ConversationState {
-  sessions: ChatSession[];
-  currentSessionId: string | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-  showResult: boolean;
-}
+import { ConversationState } from "@/types/conversation-types";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { Message } from "@/types/conversation-types";
+import axios from "axios";
 
 const initialState: ConversationState = {
   sessions: [],
-  currentSessionId: null,
+  currentSessionId: "",
   status: "idle",
   error: null,
   showResult: false,
+  open: false,
 };
 
-export const fetchGeneratedText = createAsyncThunk<
+export const sendUserPropmtToAI = createAsyncThunk<
   Message,
   { prompt: string },
   { rejectValue: string; state: RootState }
 >(
-  "conversation/fetchGeneratedText",
+  "conversation/sendUserPropmtToAI",
   async ({ prompt }, { rejectWithValue, getState }) => {
     const state = getState();
 
@@ -66,6 +52,33 @@ export const fetchGeneratedText = createAsyncThunk<
   }
 );
 
+//get the saved chat session from the db
+export const fetchChatsSession = createAsyncThunk(
+  "conversation/fetchSessions",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get("/api/chat");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue("Failed to fetch chats sessions");
+    }
+  }
+);
+
+//save chat sessions to the db
+export const saveChatSession = createAsyncThunk(
+  "conversation/saveSessions",
+  async (_, { getState, rejectWithValue }) => {
+    const state = getState() as RootState;
+    const sessions = state.conversation.sessions;
+    try {
+      await axios.post("/api/chat", { sessions });
+    } catch (error) {
+      return rejectWithValue("Failed to save chat");
+    }
+  }
+);
+
 const conversationSlice = createSlice({
   name: "conversation",
   initialState,
@@ -92,14 +105,17 @@ const conversationSlice = createSlice({
     setShowResult(state, action: PayloadAction<boolean>) {
       state.showResult = action.payload;
     },
+    setOpen(state) {
+      state.open = !state.open;
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchGeneratedText.pending, (state) => {
+      .addCase(sendUserPropmtToAI.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchGeneratedText.fulfilled, (state, action) => {
+      .addCase(sendUserPropmtToAI.fulfilled, (state, action) => {
         state.status = "succeeded";
         const session = state.sessions.find(
           (s) => s.id === state.currentSessionId
@@ -108,7 +124,15 @@ const conversationSlice = createSlice({
           session.messages.push(action.payload);
         }
       })
-      .addCase(fetchGeneratedText.rejected, (state, action) => {
+      .addCase(sendUserPropmtToAI.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
+      .addCase(fetchChatsSession.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.sessions = action.payload;
+      })
+      .addCase(fetchChatsSession.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });
@@ -120,9 +144,8 @@ export const {
   setCurrentSession,
   addUserMessage,
   setShowResult,
+  setOpen,
 } = conversationSlice.actions;
-
-
 
 export const selectSessions = (state: RootState) => state.conversation.sessions;
 export const selectCurrentSession = (state: RootState) =>
@@ -134,5 +157,7 @@ export const selectError = (state: RootState) => state.conversation.error;
 export const showResult = (state: RootState) => state.conversation.showResult;
 export const selectCurrentSessionId = (state: RootState) =>
   state.conversation.currentSessionId;
+
+export const isOpen = (state: RootState) => state.conversation.open;
 
 export default conversationSlice.reducer;
