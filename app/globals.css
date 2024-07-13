@@ -151,8 +151,8 @@ html {
     -ms-border-radius: 4px;
     -o-border-radius: 4px;
     border: none;
-    background-color: #f6f7f8;
-    background: linear-gradient(to right, #9ed7ff, #ffff, #9ed7ff);
+    background-color: #c2e7ff;
+    background: linear-gradient(to right, #1a73e8, #ffff, #1a73e8);
     background-size: 800px 50px;
     height: 20px;
     animation: skeleton-loader 3s infinite linear;
@@ -167,6 +167,22 @@ html {
       background-position: 800px 0px;
     }
   }
+
+  .spin_animation {
+    animation-name: spin;
+    animation-duration: 5000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear; 
+  }
+
+  @keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
 
   .loading_bar {
     position: absolute;
