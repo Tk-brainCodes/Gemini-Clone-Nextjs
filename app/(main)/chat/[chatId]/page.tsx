@@ -7,9 +7,9 @@ import {
   selectStatus,
   selectError,
   selectSessions,
-  fetchChatsSession,
   selectCurrentSession,
 } from "@/redux/conversationSlice";
+import { fetchChatsSession } from "@/redux/conversationThunk";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import ReactMarkdown from "react-markdown";
@@ -19,7 +19,8 @@ import { assets } from "@/assets";
 import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
-import { cn } from "@/lib/utils";
+import { ChatSession } from "@/types/conversation-types";
+import useSpeechSynthesis from "@/hooks/read-audio";
 
 const CodeBlock = ({
   language,
@@ -71,16 +72,6 @@ const CodeBlock = ({
   );
 };
 
-interface Message {
-  sender: "user" | "ai";
-  text: string;
-}
-
-interface ChatSession {
-  id: string;
-  messages: Message[];
-}
-
 const ChatResponse = () => {
   const sessions: ChatSession[] = useAppSelector(selectSessions);
   const status = useAppSelector(selectStatus);
@@ -91,6 +82,8 @@ const ChatResponse = () => {
   const currentSessionPathId = pathname.split("/").pop();
   const { user } = useUser();
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
+  const { isSpeaking, isPaused, speak, pause, resume, stop } =
+    useSpeechSynthesis();
 
   useEffect(() => {
     if (messageContainerRef.current) {
@@ -114,7 +107,17 @@ const ChatResponse = () => {
     return <div>Error: {error}</div>;
   }
 
-  console.log("status:", status);
+  const handleReadAloud = (text: string) => {
+    if (!isSpeaking) {
+      speak(text);
+    } else if (isPaused) {
+      resume();
+    } else {
+      pause();
+    }
+  };
+
+  console.log("sessions", sessions);
 
   return (
     <div>
@@ -132,7 +135,7 @@ const ChatResponse = () => {
                     message.sender === "ai" ? "flex-row-reverse" : ""
                   }`}
                 >
-                  <div className='markdown-content w-[712px] flex flex-col items-start justify-start gap-[22px] text-[17px] font-normal text-base leading-[1.7] text-[#1f1f1f] group'>
+                  <div className='markdown-content w-[712px] flex flex-col items-start justify-start gap-[22px] text-[17px] font-normal text-base leading-[1.7] text-[#1f1f1f]'>
                     <div className='flex items-center w-full group gap-[20px]'>
                       {message.sender == "user" ? (
                         <Image
@@ -148,84 +151,81 @@ const ChatResponse = () => {
                       ) : (
                         ""
                       )}
-
-                      <div className='flex-1 mx-2'>
-                        {message.sender === "user" ? message.text : ""}
+                      <div className='flex items-center justify-start gap-x-3 flex-1 mx-2 relative'>
+                        <span>
+                          {message.sender === "user" ? message.text : ""}
+                        </span>
+                        {message.sender === "user" && (
+                          <div className='w-[40px] h-[40px] items-center justify-center rounded-full group-hover:flex hidden group-hover:bg-[#f0f4f9] ml-3'>
+                            <Image
+                              src={assets.edit_icon}
+                              alt='edit_icon'
+                              className='w-[24px] h-[24px] cursor-pointer'
+                            />
+                          </div>
+                        )}
                       </div>
-                      {message.sender === "user" && (
-                        <div className='hidden group-hover:block'>
-                          <Image
-                            src={assets.edit_icon}
-                            alt='edit_icon'
-                            className='w-[24px] cursor-pointer'
-                          />
+                    </div>
+
+                    <section className='w-full'>
+                      {message.sender === "ai" && (
+                        <div className='w-full flex items-end justify-end gap-x-2 group mb-[20px]'>
+                          <Button
+                            onClick={() => handleReadAloud(message.text)}
+                            className='px-2 py-2 hover:bg-[#f0f4f9] rounded-full'
+                          >
+                            <Image
+                              src={assets.volume_up}
+                              alt='edit_icon'
+                              className='w-[25px] h-[25px] cursor-pointer'
+                            />
+                          </Button>
                         </div>
                       )}
-                    </div>
-
-                    <div className='flex items-start justify-start gap-[20px]'>
-                      {message.sender == "ai" ? (
-                        <Image
-                          src={assets.gemini_icon}
-                          alt='gemini_icon'
-                          className='w-[34px] h-[34px] rounded-full -mt-[0.8em] '
-                        />
-                      ) : (
-                        ""
-                      )}
-                      {message.sender === "ai" && (
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          className='w-full'
-                          components={{
-                            code({
-                              node,
-                              //@ts-ignore
-                              inline,
-                              className,
-                              children,
-                              ...props
-                            }) {
-                              const match = /language-(\w+)/.exec(
-                                className || ""
-                              );
-                              return !inline && match ? (
-                                <CodeBlock
-                                  language={match[1]}
-                                  value={String(children).replace(/\n$/, "")}
-                                />
-                              ) : (
-                                <code className={className} {...props}>
-                                  {children}
-                                </code>
-                              );
-                            },
-                          }}
-                        >
-                          {message.text}
-                        </ReactMarkdown>
-                      )}
-                    </div>
-
-                    {message.sender === "user" && (
-                      <div className='w-full flex items-end justify-end gap-x-2 '>
-                        <Button className='bg-none text-[14px] text-[#1f1f1f] flex gap-x-2'>
-                          Show draft
+                      <div className='flex items-start justify-start gap-[20px]'>
+                        {message.sender == "ai" ? (
                           <Image
-                            src={assets.keyboard_arrow}
-                            alt='edit_icon'
-                            className='w-[24px] cursor-pointer'
+                            src={assets.gemini_icon}
+                            alt='gemini_icon'
+                            className='w-[34px] h-[34px] rounded-full -mt-[0.2em] '
                           />
-                        </Button>
-                        <Button className='px-2 py-2 rounded-full'>
-                          <Image
-                            src={assets.volume_up}
-                            alt='edit_icon'
-                            className='w-[30px] h-[30px] cursor-pointer'
-                          />
-                        </Button>
+                        ) : (
+                          ""
+                        )}
+                        {message.sender === "ai" && (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            className='w-full'
+                            components={{
+                              code({
+                                node,
+                                //@ts-ignore
+                                inline,
+                                className,
+                                children,
+                                ...props
+                              }) {
+                                const match = /language-(\w+)/.exec(
+                                  className || ""
+                                );
+                                return !inline && match ? (
+                                  <CodeBlock
+                                    language={match[1]}
+                                    value={String(children).replace(/\n$/, "")}
+                                  />
+                                ) : (
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                );
+                              },
+                            }}
+                          >
+                            {message.text}
+                          </ReactMarkdown>
+                        )}
                       </div>
-                    )}
+                    </section>
                   </div>
                 </div>
               ))}
@@ -236,10 +236,10 @@ const ChatResponse = () => {
             <Image
               src={assets.gemini_icon}
               alt='gemini_icon'
-              className='w-[34px] h-[34px] motion-safe:animate-spin rounded-full -mt-[0.4em] '
+              className='w-[34px] h-[34px] spin_animation rounded-full -mt-[0.4em] '
             />
             <div className='flex items-start gap-[20px]'>
-              <div className='w-[700px] flex flex-col gap-[10px]'>
+              <div className='w-[700px] flex flex-col gap-[12px] mb-[1em]'>
                 <hr className='skeleton-loader' />
                 <hr className='skeleton-loader' />
                 <hr className='skeleton-loader w-[70%]' />
