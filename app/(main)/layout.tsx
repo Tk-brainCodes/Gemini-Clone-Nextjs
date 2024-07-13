@@ -1,8 +1,7 @@
 "use client";
 
-import SidebarDrawer from "@/components/sidebar/sidebar";
-import PromptInput from "@/components/prompt-input/prompt-input";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useAppSelector } from "@/redux/hooks";
 import { selectStatus } from "@/redux/conversationSlice";
 import {
@@ -15,10 +14,12 @@ import { assets } from "@/assets";
 import { Button } from "@/components/ui/button";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import ActionTooltip from "@/components/action-tooltip";
+import SidebarDrawer from "@/components/sidebar/sidebar";
+import PromptInput from "@/components/prompt-input/prompt-input";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const status = useAppSelector(selectStatus);
-  console.log("loading state", status);
+  const pathname = usePathname();
 
   return (
     <main className='flex flex-row'>
@@ -64,10 +65,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
               <div></div>
             </div>
           )}
-          {status === "loading" && (
+          {pathname === "/new-chat" && status === "loading" ? (
             <div className='loading_bar mt-[2.6em]'>
               <div></div>
             </div>
+          ) : (
+            ""
           )}
         </div>
         <section className='flex flex-col items-center justify-start'>
