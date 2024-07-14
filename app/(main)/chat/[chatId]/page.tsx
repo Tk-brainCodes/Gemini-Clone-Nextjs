@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { usePathname } from "next/navigation";
 import {
@@ -20,7 +20,9 @@ import { Button } from "@/components/ui/button";
 import { Toaster, toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 import { ChatSession } from "@/types/conversation-types";
+import { cn } from "@/lib/utils";
 import useSpeechSynthesis from "@/hooks/read-audio";
+import ActionTooltip from "@/components/action-tooltip";
 
 const CodeBlock = ({
   language,
@@ -82,8 +84,8 @@ const ChatResponse = () => {
   const currentSessionPathId = pathname.split("/").pop();
   const { user } = useUser();
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
-  const { isSpeaking, isPaused, speak, pause, resume, stop } =
-    useSpeechSynthesis();
+  const { isSpeaking, isPaused, speak, pause, resume } = useSpeechSynthesis();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (messageContainerRef.current) {
@@ -109,7 +111,9 @@ const ChatResponse = () => {
 
   const handleReadAloud = (text: string) => {
     if (!isSpeaking) {
+      setLoading(true);
       speak(text);
+      setLoading(false);
     } else if (isPaused) {
       resume();
     } else {
@@ -151,7 +155,7 @@ const ChatResponse = () => {
                       ) : (
                         ""
                       )}
-                      <div className='flex items-center justify-start gap-x-3 flex-1 mx-2 relative'>
+                      <div className='flex items-center justify-start gap-x-3 flex-1 mx-2 relative mt-1'>
                         <span>
                           {message.sender === "user" ? message.text : ""}
                         </span>
@@ -170,16 +174,51 @@ const ChatResponse = () => {
                     <section className='w-full'>
                       {message.sender === "ai" && (
                         <div className='w-full flex items-end justify-end gap-x-2 group mb-[20px]'>
-                          <Button
-                            onClick={() => handleReadAloud(message.text)}
-                            className='px-2 py-2 hover:bg-[#f0f4f9] rounded-full'
+                          <ActionTooltip
+                            align='center'
+                            side='bottom'
+                            label={
+                              !isSpeaking
+                                ? "listen"
+                                : isPaused
+                                ? "resume"
+                                : "pause"
+                            }
                           >
-                            <Image
-                              src={assets.volume_up}
-                              alt='edit_icon'
-                              className='w-[25px] h-[25px] cursor-pointer'
-                            />
-                          </Button>
+                            <Button
+                              onClick={() => handleReadAloud(message.text)}
+                              className={cn(
+                                "w-[50px] h-[50px] hover:bg-[#f0f4f9] px-2 py-2 rounded-full",
+                                isSpeaking ? "shadow-lg bg-[#f0f4f9]" : ""
+                              )}
+                            >
+                              {loading ? (
+                                <Image
+                                  src={assets.progress_activity}
+                                  alt='loading'
+                                  className='w-[30px] cursor-pointer animate-spin'
+                                />
+                              ) : !isSpeaking ? (
+                                <Image
+                                  src={assets.volume_up}
+                                  alt='volume_up'
+                                  className='w-[30px] cursor-pointer'
+                                />
+                              ) : isPaused ? (
+                                <Image
+                                  src={assets.pause}
+                                  alt='pause_icon'
+                                  className='w-[30px] cursor-pointer'
+                                />
+                              ) : (
+                                <Image
+                                  src={assets.volume_up}
+                                  alt='volume_up'
+                                  className='w-[30px] cursor-pointer'
+                                />
+                              )}
+                            </Button>
+                          </ActionTooltip>
                         </div>
                       )}
                       <div className='flex items-start justify-start gap-[20px]'>
