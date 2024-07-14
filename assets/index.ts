@@ -17,16 +17,19 @@ import flight from "./icons/flight.svg";
 import write from "./icons/write.svg";
 import lightbulb from "./icons/lightbulb.svg";
 import table_restaurant from "./icons/table_restaurant.svg";
-import stop_icon  from './icons/stop_circle.svg'
-import user_icon from './icons/user_icon.png'
-import gemini_icon from './icons/gemini_icon.png'
-import edit_icon from './icons/edit.svg'
-import content_copy from './icons/content_copy.svg'
-import volume_up from './icons/volume_up.svg'
-import keyboard_arrow from './icons/keyboard_arrow.svg'
-import chat_bubble from './icons/chat_bubble.svg'
-import option from './icons/option.svg'
-import gemini_sparkel from './icons/gemini_sparkle.svg'
+import stop_icon from "./icons/stop_circle.svg";
+import user_icon from "./icons/user_icon.png";
+import gemini_icon from "./icons/gemini_icon.png";
+import edit_icon from "./icons/edit.svg";
+import content_copy from "./icons/content_copy.svg";
+import volume_up from "./icons/volume_up.svg";
+import keyboard_arrow from "./icons/keyboard_arrow.svg";
+import chat_bubble from "./icons/chat_bubble.svg";
+import option from "./icons/option.svg";
+import gemini_sparkel from "./icons/gemini_sparkle.svg";
+import pause from "./icons/pause.svg";
+import stop from "./icons/stop.svg";
+import progress_activity from "./icons/progress_activity.svg";
 
 export const assets = {
   add_photo,
@@ -55,5 +58,8 @@ export const assets = {
   keyboard_arrow,
   chat_bubble,
   option,
-  gemini_sparkel
+  gemini_sparkel,
+  stop,
+  pause,
+  progress_activity,
 };
