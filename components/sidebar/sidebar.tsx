@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { Button } from "@/components/ui/button";
@@ -8,16 +8,15 @@ import ActionTooltip from "@/components/action-tooltip";
 import { assets } from "@/assets";
 import { useRouter, usePathname } from "next/navigation";
 import { setCurrentSession } from "@/redux/conversationSlice";
-// import { createDynamicTitle } from "@/lib/langchain";
-
 import Image from "next/image";
 import {
   startNewSession,
   selectSessions,
-  fetchChatsSession,
   isOpen,
   setOpen,
 } from "@/redux/conversationSlice";
+import { fetchChatsSession } from "@/redux/conversationThunk";
+import axios from "axios";
 
 const SidebarDrawer = () => {
   const router = useRouter();
@@ -26,6 +25,7 @@ const SidebarDrawer = () => {
   const sessions = useAppSelector(selectSessions);
   const open = useAppSelector(isOpen);
   const currentSessionPathId = pathname.split("/").pop();
+  const [titles, setTitles] = useState<any[]>([]);
 
   const handleNewChat = () => {
     dispatch(startNewSession());
@@ -52,21 +52,49 @@ const SidebarDrawer = () => {
     dispatch(setOpen());
   };
 
-  // const prompTitles = sessions.map((session) => {
-  //   return session.messages.length > 0 && session.messages[0].text;
-  // });
+  // const fetchTitles = useCallback(async (prompts: string[]) => {
+  //   try {
+  //     const response = await axios.post("/api/get-title", { prompts });
 
-  // console.log("prompt titles", prompTitles)
+  //     if (response.status !== 200) {
+  //       throw new Error("Failed to fetch titles");
+  //     }
 
-  // const generateSidebarTitle = async () => {
-  //   const title = await createDynamicTitle(prompTitles);
-  // };
+  //     setTitles(response.data.titles);
+  //   } catch (error) {
+  //     console.error("Error fetching titles:", error);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const prompts = sessions
+  //     .map((session) => session.messages.length > 0 && session.messages[0].text)
+  //     .filter((prompt): prompt is string => Boolean(prompt));
+
+  //   if (prompts.length > 0) {
+  //     fetchTitles(prompts);
+  //   }
+  // }, [fetchTitles, sessions]);
+
+  // console.log("titles", titles)
+
+  const prompts = sessions
+    .map((session) => {
+      if (
+        session.messages.length > 0 &&
+        session.messages[0].sender === "user"
+      ) {
+        return session.messages[0].text;
+      }
+      return null;
+    })
+    .filter((prompt) => prompt !== null);
 
   return (
     <nav>
       <div
         className={` ${
-          open ? "w-72" : "w-20 "
+          open ? "w-[292px]" : "w-20 "
         } bg-[#f0f4f9] h-[100vh] p-5 z-40 pt-4 top-0 left-0 duration-300 flex flex-col items-start justify-between`}
       >
         <div className='flex flex-col gap-x-4 items-start justify-center'>
@@ -109,12 +137,12 @@ const SidebarDrawer = () => {
             {open && (
               <>
                 <li className='text-[14px] list-none font-semibold leading-[20px] text-[#1f1f1f] mt-6'>
-                  {sessions.length > 0 && "Recent"}
+                  {sessions?.length > 0 && "Recent"}
                 </li>
                 <ul className='h-[188px] w-full overflow-x-hidden overflow-y-auto'>
                   {sessions
-                    .filter((session: any) => session.messages.length > 0)
-                    .map((session: any) => (
+                    ?.filter((session: any) => session.messages.length > 0)
+                    ?.map((session: any) => (
                       <>
                         <ActionTooltip
                           key={session.id}
@@ -122,33 +150,43 @@ const SidebarDrawer = () => {
                           align='center'
                           label={
                             session.messages.length > 0 &&
-                            session.messages[0].text
+                            session.messages[0].sender === "user"
+                              ? session.messages[0].text
+                              : ""
                           }
                         >
                           <li
                             className={cn(
-                              "w-full text-[14px] gap-[10px] flex items-center justify-between list-none group font-normal px-3 py-2 rounded-[30px] leading-[20px] text-[#444746] mt-2 cursor-pointer",
+                              "relative w-[260px] text-[14px] gap-[10px] flex items-center justify-between list-none group font-normal p-2 pl-4 py-2 rounded-[30px] leading-[20px] text-[#444746] mt-2 cursor-pointer",
                               currentSessionPathId === session.id
                                 ? "text-[#041e49] bg-[#d3e3fd]"
                                 : "hover:bg-[#E9EEF6]"
                             )}
                             onClick={() => handleSessionClick(session.id)}
                           >
-                            <span className='line-clamp-1 flex gap-x-4 items-start justify-start'>
-                              <div className='w-[24px] h-[24px]'>
-                                {" "}
-                                <Image
-                                  src={assets.chat_bubble}
-                                  alt='plus_icon'
-                                  className='w-[20px]'
-                                />
-                              </div>
-                              {session.messages.length > 0 &&
-                                session.messages[0].text}
-                            </span>
-                            <span className='w-[28px] hidden group-hover:flex h-[28px] group-hover:items-center group-hover:justify-center rounded-full hover:bg-white'>
+                            <span className='flex items-center gap-x-4 justify-center w-full'>
                               <Image
-                                className='w-[20px]'
+                                src={assets.chat_bubble}
+                                alt='plus_icon'
+                                className='w-[16px] h-[16px] mt-1'
+                              />
+                              <p className='flex-1 text-[16px] font-normal truncate'>
+                                {session.messages.length > 0 &&
+                                session.messages[0].sender === "user"
+                                  ? session.messages[0].text
+                                  : null}
+                              </p>
+                            </span>
+                            <span
+                              className={cn(
+                                "absolute right-2 w-[28px] h-[28px] hidden group-hover:flex items-center justify-center rounded-full",
+                                currentSessionPathId !== session.id
+                                  ? "hover:bg-slate-300"
+                                  : "hover:bg-white"
+                              )}
+                            >
+                              <Image
+                                className='w-[22px]'
                                 src={assets.option}
                                 alt='plus_icon'
                               />
