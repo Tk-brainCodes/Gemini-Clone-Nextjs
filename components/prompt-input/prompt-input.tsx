@@ -2,32 +2,45 @@
 
 import React, { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   addUserMessage,
   selectCurrentSession,
   selectStatus,
   selectCurrentSessionId,
-  sendUserPropmtToAI,
-  saveChatSession,
   startNewSession,
   setCurrentSession,
 } from "@/redux/conversationSlice";
+import { sendUserPropmtToAI, saveChatSession } from "@/redux/conversationThunk";
 import { assets } from "@/assets";
+import { cn } from "@/lib/utils";
+import useSpeechToText from "@/hooks/speech-to-text";
 import ActionTooltip from "@/components/action-tooltip";
 import Image from "next/image";
-import { v4 as uuidv4 } from "uuid";
 
 const PromptInput = () => {
-  const [inputText, setInputText] = useState<string>("");
+  const { isListening, transcript, startListening, stopListening } =
+    useSpeechToText();
+  const [inputText, setInputText] = useState<string>(transcript);
+  const [isTalking, setIsTalking] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const pathname = usePathname();
 
   const currentSession = useAppSelector(selectCurrentSession);
   const currentSessionId = useAppSelector(selectCurrentSessionId);
   const status = useAppSelector(selectStatus);
 
+  useEffect(() => {
+    setInputText((prevInputText) => prevInputText + transcript);
+  }, [transcript]);
+
+  useEffect(() => {
+    if (isListening) {
+      setIsTalking(true);
+    } else {
+      setTimeout(() => setIsTalking(false), 1000);
+    }
+  }, [isListening]);
 
   const handleGenerate = async () => {
     if (!inputText.trim()) return;
@@ -45,11 +58,12 @@ const PromptInput = () => {
       const newSessionId = currentSessionId;
 
       if (newSessionId) {
+        dispatch(setCurrentSession(newSessionId));
         dispatch(addUserMessage({ sessionId: newSessionId, text: inputText }));
         await dispatch(sendUserPropmtToAI({ prompt: inputText }));
         await dispatch(saveChatSession());
-        setInputText("");
         router.push(`/chat/${newSessionId}`);
+        setInputText("");
       }
     }
   };
@@ -57,11 +71,10 @@ const PromptInput = () => {
   return (
     <div className=' h-fit bg-white z-10 w-[75vw] flex flex-col fixed bottom-0 items-center justify-center'>
       <div className='search-box'>
-        <div className='relative flex items-center'>
+        <div className='prompt_input relative flex items-start justify-center'>
           <textarea
-            placeholder='Enter a text here'
-            className='flex-1 h-[50px] w-[690px] text-[#1f1f1f] bg-transparent border-1 border-blue-400 outline-none focus:outline-none focus:border-none focus:ring-0 p-[8px] text-[18px]'
-            style={{ whiteSpace: "pre-wrap" }}
+            placeholder={isTalking ? "Listening..." : "Enter a text here"}
+            className='flex-1 h-[50px] w-[690px] text-[#1f1f1f] bg-transparent border-1 border-blue-400 outline-none focus:outline-none focus:border-none focus:ring-0 whitespace-nowrap text-[18px]'
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => {
@@ -85,7 +98,16 @@ const PromptInput = () => {
           </ActionTooltip>
 
           <ActionTooltip align='center' side='top' label='Use microphone'>
-            <span className='rounded-full w-[50px] h-[50px] hover:bg-slate-200 px-2 py-2 flex items-center justify-center'>
+            <span
+              onClick={isListening ? stopListening : startListening}
+              className={cn(
+                "rounded-full w-[50px] h-[50px] hover:bg-slate-200 px-2 py-2 flex items-center justify-center",
+                isListening && "bg-[#f0f4f9] shadow-md"
+              )}
+            >
+              {isListening && (
+                <span className='absolute w-[65px] h-[63px] rounded-full bg-[#d3e3fd] opacity-55 motion-safe:animate-ping'></span>
+              )}
               <Image
                 src={assets.mic_icon}
                 alt='mic-icon'
@@ -97,7 +119,7 @@ const PromptInput = () => {
             <ActionTooltip align='center' side='top' label='Stop'>
               <span className='rounded-full w-[50px] h-[50px] hover:bg-slate-200 px-2 py-2 flex items-center justify-center'>
                 <Image
-                  src={assets.stop_icon}
+                  src={assets.stop}
                   alt='stop icon'
                   className='w-[24px] cursor-pointer'
                 />
