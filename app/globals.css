@@ -133,12 +133,13 @@ html {
     justify-content: space-between;
     gap: 20px;
     background-color: #e9eef6;
-    padding: 10px 20px;
     border-radius: 50px;
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
     -ms-border-radius: 50px;
     -o-border-radius: 50px;
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 1px inset;
+    text-overflow: clip;
   }
   .result::-webkit-scrollbar {
     display: none;
@@ -238,8 +239,9 @@ html {
   }
 
   .prompt_input {
-    padding: 4px 8px;
     box-sizing: content-box;
     text-overflow: clip;
   }
 }
+
+
