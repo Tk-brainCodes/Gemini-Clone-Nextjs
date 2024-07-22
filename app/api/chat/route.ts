@@ -2,20 +2,33 @@ import { NextApiRequest } from "next";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { currentProfile } from "@/lib/current-profile";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request, res: NextResponse) {
   const { sessions } = await req.json();
-  const profile = await currentProfile();
+  const { userId } = auth();
+
+  if (!userId) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
 
   if (!Array.isArray(sessions)) {
     return new NextResponse("Invalid session data", { status: 400 });
   }
 
-  if (!profile?.id) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
-
   try {
+    let profile = await db.profile.findUnique({
+      where: { userId: userId },
+    });
+
+    if (!profile) {
+      profile = await db.profile.create({
+        data: {
+          userId: userId,
+        },
+      });
+    }
+
     const chatResponse = await Promise.all(
       sessions.map(async (session: any) => {
         const chatSession = await db.chat.findUnique({
@@ -23,10 +36,9 @@ export async function POST(req: Request, res: NextResponse) {
         });
 
         if (chatSession) {
-          await db.chat.update({
+          return db.chat.update({
             where: { id: session.id },
             data: {
-              profile: { connect: { id: profile?.id! } },
               messages: {
                 deleteMany: {},
                 create: session.messages.map((message: any) => ({
@@ -38,7 +50,7 @@ export async function POST(req: Request, res: NextResponse) {
             },
           });
         } else {
-          await db.chat.create({
+          return db.chat.create({
             data: {
               id: session.id,
               profile: { connect: { id: profile?.id! } },
@@ -80,3 +92,4 @@ export async function GET(req: NextApiRequest, res: NextResponse) {
     return new NextResponse("Failed to get messages", { status: 500 });
   }
 }
+
