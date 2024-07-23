@@ -1,4 +1,5 @@
 export interface Message {
+  id: string | null;
   sender: "user" | "ai";
   text: string;
 }
