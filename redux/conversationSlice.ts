@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { RootState } from "./store";
 import { ConversationState } from "@/types/conversation-types";
 import { sendUserPropmtToAI, fetchChatsSession } from "./conversationThunk";
+import { Message } from "@/types/conversation-types";
 
 const initialState: ConversationState = {
   sessions: [],
@@ -33,7 +34,31 @@ const conversationSlice = createSlice({
         (s) => s.id === action.payload.sessionId
       );
       if (session) {
-        session.messages.push({ sender: "user", text: action.payload.text });
+        session.messages.push({
+          id: session.id,
+          sender: "user",
+          text: action.payload.text,
+        });
+      }
+    },
+    updateUserMessage(
+      state,
+      action: PayloadAction<{
+        sessionId: string;
+        messageId: string;
+        text: string;
+      }>
+    ) {
+      const session = state.sessions.find(
+        (session) => session.id === action.payload.sessionId
+      );
+      if (session) {
+        const messageIndex = session.messages.findIndex(
+          (message) => message.id === action.payload.messageId
+        );
+        if (messageIndex !== -1) {
+          session.messages[messageIndex].text = action.payload.text;
+        }
       }
     },
     setShowResult(state, action: PayloadAction<boolean>) {
@@ -52,7 +77,7 @@ const conversationSlice = createSlice({
       .addCase(sendUserPropmtToAI.fulfilled, (state, action) => {
         state.status = "succeeded";
         const session = state.sessions.find(
-          (s) => s.id === state.currentSessionId
+          (session) => session.id === state.currentSessionId
         );
         if (session) {
           session.messages.push(action.payload);
@@ -79,6 +104,7 @@ export const {
   addUserMessage,
   setShowResult,
   setOpen,
+  updateUserMessage,
 } = conversationSlice.actions;
 
 export const selectSessions = (state: RootState) => state.conversation.sessions;
@@ -92,6 +118,17 @@ export const showResult = (state: RootState) => state.conversation.showResult;
 export const selectCurrentSessionId = (state: RootState) =>
   state.conversation.currentSessionId;
 
-export const isOpen = (state: RootState) => state.conversation.open;
+//find a specific message by id
+export const selectMessageById = (
+  state: RootState,
+  sessionId: string,
+  messageId: string
+): Message | undefined => {
+  const session = state.conversation.sessions.find(
+    (session) => session.id === sessionId
+  );
+  return session?.messages.find((message) => message.id === messageId);
+};
 
+export const isOpen = (state: RootState) => state.conversation.open;
 export default conversationSlice.reducer;
