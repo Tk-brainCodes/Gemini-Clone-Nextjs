@@ -22,9 +22,13 @@ const ActionTooltip = ({
 }: ActionTooltipProps) => {
   return (
     <TooltipProvider>
-      <Tooltip  delayDuration={50}>
+      <Tooltip delayDuration={50}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent className="bg-[#444746] text-white rounded-[4px]" align={align} side={side}>
+        <TooltipContent
+          className='bg-[#444746] text-white border-none border-0 rounded-[4px]'
+          align={align}
+          side={side}
+        >
           <p className='font-normal text-sm capitalize'>
             {label.toLowerCase()}
           </p>
