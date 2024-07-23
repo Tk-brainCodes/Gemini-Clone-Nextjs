@@ -8,7 +8,6 @@ import ActionTooltip from "@/components/action-tooltip";
 import { assets } from "@/assets";
 import { useRouter, usePathname } from "next/navigation";
 import { setCurrentSession } from "@/redux/conversationSlice";
-import Image from "next/image";
 import {
   startNewSession,
   selectSessions,
@@ -16,7 +15,16 @@ import {
   setOpen,
 } from "@/redux/conversationSlice";
 import { fetchChatsSession } from "@/redux/conversationThunk";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ChatOptionsDropdown from "../dropdowns/chat-options-dropdown";
 import axios from "axios";
+import useDarkMode from "@/hooks/toggle-theme";
+import Switch from "@mui/material/Switch";
 
 const SidebarDrawer = () => {
   const router = useRouter();
@@ -26,6 +34,7 @@ const SidebarDrawer = () => {
   const open = useAppSelector(isOpen);
   const currentSessionPathId = pathname.split("/").pop();
   const [titles, setTitles] = useState<any[]>([]);
+  const { darkMode, handleSetDarkMode, handleSetLightMode } = useDarkMode();
 
   const handleNewChat = () => {
     dispatch(startNewSession());
@@ -68,45 +77,57 @@ const SidebarDrawer = () => {
 
   // useEffect(() => {
   //   const prompts = sessions
-  //     .map((session) => session.messages.length > 0 && session.messages[0].text)
-  //     .filter((prompt): prompt is string => Boolean(prompt));
+  //     .map((session) => {
+  //       if (
+  //         session.messages.length > 0 &&
+  //         session.messages[0].sender === "user"
+  //       ) {
+  //         return session.messages[0].text;
+  //       }
+  //       return null;
+  //     })
+  //     .filter((prompt) => prompt !== null);
+
+  //   console.log("sent prompts", prompts);
 
   //   if (prompts.length > 0) {
   //     fetchTitles(prompts);
   //   }
   // }, [fetchTitles, sessions]);
 
-  // console.log("titles", titles)
+  // const removeSpecialCharacters = (str: string) => {
+  //   return str.replace(/[^\w\s]/gi, "").replace(/\n/g, "");
+  // };
 
-  const prompts = sessions
-    .map((session) => {
-      if (
-        session.messages.length > 0 &&
-        session.messages[0].sender === "user"
-      ) {
-        return session.messages[0].text;
-      }
-      return null;
-    })
-    .filter((prompt) => prompt !== null);
+  // const cleanedArray = titles.map(removeSpecialCharacters);
+
+  // console.log("titles", cleanedArray);
+
+  const handleToggleTheme = () => {
+    if (darkMode) {
+      handleSetLightMode();
+    } else {
+      handleSetDarkMode();
+    }
+  };
 
   return (
     <nav>
       <div
         className={` ${
           open ? "w-[292px]" : "w-20 "
-        } bg-[#f0f4f9] h-[100vh] p-5 z-40 pt-4 top-0 left-0 duration-300 flex flex-col items-start justify-between`}
+        } bg-[#f0f4f9] h-[100vh] dark:bg-[#1e1f20] max-sm:hidden max-md:hidden md:hidden p-5 z-40 pt-4 top-0 left-0 duration-300 lg:flex flex-col items-start justify-between`}
       >
         <div className='flex flex-col gap-x-4 items-start justify-center'>
           <ActionTooltip side='bottom' align='center' label='Expand menu'>
             <Button
               onClick={handleToggle}
-              className='bg-0 hover:bg-0 flex px-2 py-2 w-[50px] h-[50px] items-center justify-center rounded-full  cursor-pointer'
+              className='bg-0 dark:hover:bg-[#282a2c] hover:bg-0 flex px-2 py-2 w-[50px] h-[50px] items-center justify-center rounded-full  cursor-pointer'
             >
-              <Image
-                src={assets.menu_icon}
-                className={`cursor-pointer duration-500`}
-                alt='menu_icon'
+              <assets.MenuIcon
+                className='cursor-pointer duration-500 fill-[#3c4043] dark:fill-white'
+                width={24}
+                height={24}
               />
             </Button>
           </ActionTooltip>
@@ -116,16 +137,21 @@ const SidebarDrawer = () => {
               <Button
                 onClick={handleNewChat}
                 className={cn(
-                  "flex   rounded-md p-2 cursor-pointer hover:bg-light-white text-[#444746] bg-[#dde3ea] text-sm items-center font-semibold  gap-x-4",
+                  "flex   rounded-md p-2 cursor-pointer dark:bg-[#282a2c] hover:bg-light-white text-[#444746] bg-[#dde3ea] text-sm items-center font-semibold  gap-x-4",
                   open ? "rounded-[20px] w-[150px]" : "rounded-full"
                 )}
                 disabled={pathname === "/new-chat" ? true : false}
               >
-                <Image src={assets.plus_icon} alt='plus_icon' />
+                <assets.PlusIcon
+                  width={24}
+                  height={24}
+                  className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                />
                 <span
-                  className={`leading-[20px] text-[14px] ${
+                  className={cn(
+                    "leading-[20px] dark:text-white text-[14px] origin-left duration-200",
                     !open && "hidden"
-                  } origin-left duration-200`}
+                  )}
                 >
                   New chat
                 </span>
@@ -136,13 +162,12 @@ const SidebarDrawer = () => {
           <div className='w-full'>
             {open && (
               <>
-                <li className='text-[14px] list-none font-semibold leading-[20px] text-[#1f1f1f] mt-6'>
+                <li className='text-[14px] dark:text-white list-none font-semibold leading-[20px] text-[#1f1f1f] mt-6'>
                   {sessions?.length > 0 && "Recent"}
                 </li>
                 <ul className='h-[188px] w-full overflow-x-hidden overflow-y-auto'>
                   {sessions
-                    ?.filter((session: any) => session.messages.length > 0)
-                    ?.map((session: any) => (
+                    .map((session: any) => (
                       <>
                         <ActionTooltip
                           key={session.id}
@@ -157,18 +182,18 @@ const SidebarDrawer = () => {
                         >
                           <li
                             className={cn(
-                              "relative w-[260px] text-[14px] gap-[10px] flex items-center justify-between list-none group font-normal p-2 pl-4 py-2 rounded-[30px] leading-[20px] text-[#444746] mt-2 cursor-pointer",
+                              "relative w-[260px] dark:text-white text-[14px] gap-[10px] flex items-center justify-between list-none group font-normal p-2 pl-4 py-2 rounded-[30px] leading-[20px] text-[#444746] mt-2 cursor-pointer",
                               currentSessionPathId === session.id
-                                ? "text-[#041e49] bg-[#d3e3fd]"
-                                : "hover:bg-[#E9EEF6]"
+                                ? "text-[#041e49] dark:text-[#c2e7ff] dark:bg-[#004a77] bg-[#d3e3fd]"
+                                : "hover:bg-[#E9EEF6] dark:hover:bg-[#444746]"
                             )}
                             onClick={() => handleSessionClick(session.id)}
                           >
                             <span className='flex items-center gap-x-4 justify-center w-full'>
-                              <Image
-                                src={assets.chat_bubble}
-                                alt='plus_icon'
-                                className='w-[16px] h-[16px] mt-1'
+                              <assets.ChatBubbleIcon
+                                className='cursor-pointer duration-500 fill-[#1f1f1f] w-[16px] h-[16px] mt-1 dark:fill-white'
+                                width={24}
+                                height={24}
                               />
                               <p className='flex-1 text-[16px] font-normal truncate'>
                                 {session.messages.length > 0 &&
@@ -177,24 +202,27 @@ const SidebarDrawer = () => {
                                   : null}
                               </p>
                             </span>
-                            <span
-                              className={cn(
-                                "absolute right-2 w-[28px] h-[28px] hidden group-hover:flex items-center justify-center rounded-full",
-                                currentSessionPathId !== session.id
-                                  ? "hover:bg-slate-300"
-                                  : "hover:bg-white"
-                              )}
-                            >
-                              <Image
-                                className='w-[22px]'
-                                src={assets.option}
-                                alt='plus_icon'
-                              />
-                            </span>
+                            <ChatOptionsDropdown>
+                              <span
+                                className={cn(
+                                  "absolute right-2 w-[28px] h-[28px] hidden group-hover:flex items-center justify-center rounded-full -mt-[15px]",
+                                  currentSessionPathId !== session.id
+                                    ? "hover:bg-slate-300 dark:hover:bg-[#37393b]"
+                                    : "hover:bg-white dark:hover:bg-[#c2e7ff]"
+                                )}
+                              >
+                                <assets.OptionIcon
+                                  width={24}
+                                  height={24}
+                                  className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                                />
+                              </span>
+                            </ChatOptionsDropdown>
                           </li>
                         </ActionTooltip>
                       </>
-                    ))}
+                    ))
+                    .filter((session: any) => session.length !== null)}
                 </ul>
               </>
             )}
@@ -206,12 +234,16 @@ const SidebarDrawer = () => {
             <ActionTooltip side='right' align='center' label='Help'>
               <li
                 className={cn(
-                  "flex rounded-[20px] p-2 cursor-pointer hover:bg-light-white text-[#444746]  text-sm items-center w-full font-semibold  gap-x-4 hover:bg-slate-200"
+                  "flex rounded-[20px] p-2 dark:hover:bg-[#444746] cursor-pointer hover:bg-light-white text-[#444746]  text-sm items-center w-full font-semibold  gap-x-4 hover:bg-slate-200"
                 )}
               >
-                <Image src={assets.help} alt='plus_icon' />
+                <assets.HelpIcon
+                  width={24}
+                  height={24}
+                  className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                />
                 <span
-                  className={`leading-[20px] text-[14px] ${
+                  className={`leading-[20px] dark:text-white text-[14px] ${
                     !open && "hidden"
                   } origin-left duration-200`}
                 >
@@ -226,12 +258,16 @@ const SidebarDrawer = () => {
             >
               <li
                 className={cn(
-                  "flex rounded-[20px] p-2 cursor-pointer hover:bg-light-white text-[#444746]  text-sm items-center w-full font-semibold  gap-x-4 hover:bg-slate-200"
+                  "flex rounded-[20px] p-2 dark:hover:bg-[#444746] cursor-pointer hover:bg-light-white text-[#444746]  text-sm items-center w-full font-semibold  gap-x-4 hover:bg-slate-200"
                 )}
               >
-                <Image src={assets.history_icon} alt='plus_icon' />
+                <assets.HistoryIcon
+                  width={24}
+                  height={24}
+                  className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                />
                 <span
-                  className={`leading-[20px] text-[14px] ${
+                  className={`leading-[20px] dark:text-white text-[14px] ${
                     !open && "hidden"
                   } origin-left duration-200`}
                 >
@@ -239,22 +275,70 @@ const SidebarDrawer = () => {
                 </span>
               </li>
             </ActionTooltip>
-            <ActionTooltip side='right' align='center' label='Settings'>
-              <li
-                className={cn(
-                  "flex p-2 cursor-pointer hover:bg-light-white text-[#444746]  text-sm items-center font-semibold w-full gap-x-4 hover:bg-slate-200 rounded-[20px]"
-                )}
-              >
-                <Image src={assets.settings_icon} alt='plus_icon' />
-                <span
-                  className={`leading-[20px] text-[14px] ${
-                    !open && "hidden"
-                  } origin-left duration-200`}
+            <DropdownMenu>
+              <ActionTooltip side='right' align='center' label='Settings'>
+                <DropdownMenuTrigger
+                  className={cn(
+                    "flex p-2 cursor-pointer dark:hover:bg-[#444746] hover:bg-light-white text-[#444746]  text-sm items-center font-semibold w-full gap-x-4 hover:bg-slate-200 rounded-[20px]"
+                  )}
                 >
-                  Settings
-                </span>
-              </li>
-            </ActionTooltip>
+                  <assets.SettingsIcon
+                    width={24}
+                    height={24}
+                    className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                  />
+                  <span
+                    className={`leading-[20px] dark:text-white text-[14px] ${
+                      !open && "hidden"
+                    } origin-left duration-200`}
+                  >
+                    Settings
+                  </span>
+                </DropdownMenuTrigger>
+              </ActionTooltip>
+              <DropdownMenuContent
+                side='right'
+                className='bg-[#e9eef6] dark:bg-[#444746]  border-none px-2 py-2 w-[267px] shadow-2xl flex flex-col items-center justify-center gap-x-3 rounded-md'
+              >
+                <DropdownMenuItem className='w-full flex itms-center justify-start gap-x-3  mt-2 hover:bg-[#37393]'>
+                  <assets.ExtensionsIcon
+                    width={24}
+                    height={24}
+                    className='w-[24px] cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                  />
+                  <span className='dark:text-white text-[#1f1f1f]'>
+                    Extensions
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className='w-full flex items-center justify-start gap-x-3 hover:bg-[#37393]'>
+                  <assets.LinkIcon
+                    width={24}
+                    height={24}
+                    className='w-[24px] cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                  />
+                  <span className='dark:text-white text-[#1f1f1f]'>
+                    Your public link
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className='w-full flex items-center -mt-2 justify-between  hover:bg-[#37393]'>
+                  <div className='flex itms-start justify-center gap-x-3 '>
+                    <assets.ThemeModeIcon
+                      width={24}
+                      height={24}
+                      className='w-[24px] cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                    />
+                    <span className=' dark:text-white text-[#1f1f1f]'>
+                      Dark theme
+                    </span>
+                  </div>
+                  <Switch
+                    defaultChecked
+                    checked={darkMode}
+                    onChange={handleToggleTheme}
+                  />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </ul>
       </div>
