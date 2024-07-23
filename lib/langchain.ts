@@ -44,7 +44,7 @@ export const createShortTitlePrompts = async (prompts: string[]) => {
 {output}`);
   const fewShotPrompt = new FewShotChatMessagePromptTemplate({
     prefix:
-      "Rephrase the users query to be more general, using the following examples",
+      "Produce a short and concise title description, following the examples given",
     suffix: "Human: {input}",
     examplePrompt,
     examples,
