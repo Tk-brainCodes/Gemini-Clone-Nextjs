@@ -86,7 +86,7 @@ export const generateGoogleSearch = async (text: string) => {
   );
   const fewShotPrompt = new FewShotChatMessagePromptTemplate({
     prefix:
-      " Generate bewtween 1 and 10 important related google search title. Make it sound more human. Donot add any extra text, only return the google search questions",
+      " Generate bewtween 1 and 10 important related google search title. Make it sound more human. Do not add any extra text and do not number them, only return the google search questions",
     suffix: "Human: {input}",
     examplePrompt,
     examples,
