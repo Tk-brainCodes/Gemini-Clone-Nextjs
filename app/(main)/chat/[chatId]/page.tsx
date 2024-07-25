@@ -24,17 +24,16 @@ import { useUser } from "@clerk/nextjs";
 import { ChatSession } from "@/types/conversation-types";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { generateGoogleSearch } from "@/lib/langchain";
 import useSpeechSynthesis from "@/hooks/read-audio";
 import ActionTooltip from "@/components/action-tooltip";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
+import PromptGoogleSearches from "@/components/google-search/prompt-google-searches";
 
 const CodeBlock = ({
   language,
@@ -107,8 +106,14 @@ const ChatResponse = () => {
   const currentSessionPathId = pathname.split("/").pop();
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [generatedPromptSearch, setGeneratedPromptSearch] = useState<string[]>(
+    []
+  );
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [audioMessageId, setAudioMessageId] = useState<string | null>(null);
+  const [messageId, setMessageId] = useState<string | null>("");
+  const [showGoogleSearches, setShowGoogleSearches] = useState(false);
   const [editedText, setEditedText] = useState("");
 
   useEffect(() => {
@@ -152,6 +157,22 @@ const ChatResponse = () => {
       updateUserMessage({ sessionId, messageId, text: editedText })
     );
     setEditingMessageId(null);
+  };
+
+  const handleShowSearches = async (text: string, id: string | null) => {
+    try {
+      setMessageId(id);
+      setEditedText(text);
+      setShowGoogleSearches(!showGoogleSearches);
+      setLoadingSearch(true);
+
+      const response = await generateGoogleSearch(text);
+      const reponseArray = response.replace(/[^\w\s]/gi, "").split("\n");
+      setGeneratedPromptSearch(reponseArray);
+      setLoadingSearch(false);
+    } catch (error) {
+      console.log("error generating google searches", error);
+    }
   };
 
   return (
@@ -347,72 +368,95 @@ const ChatResponse = () => {
                         </ReactMarkdown>
                       )}
                       {message.sender === "ai" && (
-                        <div className='flex gap-x-2 mt-2'>
-                          <Button className='' disabled>
-                            <assets.ThumbsUp
-                              className='fill-[#1f1f1f] w-[20px] h-[20px] dark:fill-white'
-                              width={24}
-                              height={24}
-                            />
-                          </Button>
-                          <Button className='' disabled>
-                            <assets.ThumbsDown
-                              className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
-                              width={24}
-                              height={24}
-                            />
-                          </Button>
-                          <Button className='' disabled>
-                            <assets.Tune
-                              className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
-                              width={24}
-                              height={24}
-                            />
-                          </Button>
-                          <Button className=''>
-                            <assets.Share
-                              className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
-                              width={24}
-                              height={24}
-                            />
-                          </Button>
-                          <Button className=''>
-                            <assets.GoogleBrand
-                              className=' w-[20px] h-[20px]'
-                              width={24}
-                              height={24}
-                            />
-                          </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button>
-                                <assets.OptionIcon
-                                  className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                        <>
+                          <div className='flex gap-x-2 mt-2'>
+                            <Button className='' disabled>
+                              <assets.ThumbsUp
+                                className='fill-[#1f1f1f] w-[20px] h-[20px] dark:fill-white'
+                                width={24}
+                                height={24}
+                              />
+                            </Button>
+                            <Button disabled>
+                              <assets.ThumbsDown
+                                className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                                width={24}
+                                height={24}
+                              />
+                            </Button>
+                            <Button disabled>
+                              <assets.Tune
+                                className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                                width={24}
+                                height={24}
+                              />
+                            </Button>
+                            <Button>
+                              <assets.Share
+                                className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                                width={24}
+                                height={24}
+                              />
+                            </Button>
+                            <Button
+                              onClick={() =>
+                                handleShowSearches(message.text, message.id)
+                              }
+                              disabled={loadingSearch}
+                            >
+                              {loadingSearch ? (
+                                <assets.ProgressActivityIcon
+                                  className=' w-[20px] h-[20px] fill-[#0b57d0] dark:fill-[#a8c7fa] animate-spin'
                                   width={24}
                                   height={24}
                                 />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className='px-2 py-2 border-none rounded-md flex flex-col gap-[5px] bg-[#e9eef6] dark:bg-[#444746] shadow-md'>
-                              <DropdownMenuItem className="flex gap-x-4">
-                                <assets.ContentCopyIcon
-                                  className='fill-[#1f1f1f] w-[20px] h-[20px] dark:fill-white'
+                              ) : (
+                                <assets.GoogleBrand
+                                  className=' w-[20px] h-[20px]'
                                   width={24}
                                   height={24}
                                 />
-                                <span>Copy</span>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className='flex gap-x-4'>
-                                <assets.Flag
-                                  className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
-                                  width={24}
-                                  height={24}
-                                />
-                                <span>Report legal issues</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                              )}
+                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button>
+                                  <assets.OptionIcon
+                                    className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                                    width={24}
+                                    height={24}
+                                  />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className='px-2 py-2 border-none rounded-md flex flex-col gap-[10px] bg-[#e9eef6] dark:bg-[#444746] shadow-md'>
+                                <DropdownMenuItem className='flex gap-x-4'>
+                                  <assets.ContentCopyIcon
+                                    className='fill-[#1f1f1f] w-[20px] h-[20px] dark:fill-white'
+                                    width={24}
+                                    height={24}
+                                  />
+                                  <span>Copy</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className='flex gap-x-4'>
+                                  <assets.Flag
+                                    className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                                    width={24}
+                                    height={24}
+                                  />
+                                  <span>Report legal issues</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+
+                          {messageId === message.id && showGoogleSearches ? (
+                            <PromptGoogleSearches
+                              generatedPromptSearch={generatedPromptSearch}
+                            />
+                          ) : (
+                            ""
+                          )}
+                        </>
                       )}
                     </section>
                   </div>
