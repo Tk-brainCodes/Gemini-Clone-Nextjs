@@ -63,6 +63,46 @@ export const createShortTitlePrompts = async (prompts: string[]) => {
   return results;
 };
 
+export const generateGoogleSearch = async (text: string) => {
+  const examples = [
+    {
+      input: "write test for the code.",
+      output: "How do i test my react application?",
+    },
+    {
+      input:
+        "Briefly summarize this concept: urban planning. Include a brief description of the term and list key aspects of the concept.",
+      output: "Urban planning concept",
+    },
+    {
+      input:
+        "write a code to Create a recipe for a low-carb meal with the following ingredients I have in my fridge: cauliflower, and cucumber in react",
+      output: "Is cucumber good for low carb diet?",
+    },
+  ];
+
+  const examplePrompt = ChatPromptTemplate.fromTemplate(
+    `Human: {input}{output}`
+  );
+  const fewShotPrompt = new FewShotChatMessagePromptTemplate({
+    prefix:
+      " Generate bewtween 1 and 10 important related google search title. Make it sound more human. Donot add any extra text, only return the google search questions",
+    suffix: "Human: {input}",
+    examplePrompt,
+    examples,
+    inputVariables: ["input"],
+  });
+
+  const formattedPrompt = await fewShotPrompt.format({
+    input: text,
+  });
+
+  const response = await model.invoke(formattedPrompt);
+  const responseText = response.content as string;
+
+  return responseText;
+};
+
 export const createDynamicPromptInput = async (prompt: string) => {
   const res = await model.invoke([["human", `${prompt}`]]);
   return res.content;
