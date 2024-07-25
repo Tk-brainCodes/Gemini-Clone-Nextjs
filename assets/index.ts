@@ -36,6 +36,7 @@ import { ReactComponent as ThumbsUp } from "./icons/thumb_up.svg";
 import { ReactComponent as ThumbsDown } from "./icons/thumb_down.svg";
 import { ReactComponent as Share } from "./icons/share.svg";
 import { ReactComponent as Flag } from "./icons/flag.svg";
+import { ReactComponent as Search } from "./icons/search.svg";
 
 import UserIcon from "./icons/user_icon.png";
 import gemini_icon from "./icons/gemini_icon.png";
@@ -83,4 +84,5 @@ export const assets = {
   GoogleBrand,
   Tune,
   Flag,
+  Search,
 };
