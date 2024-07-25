@@ -80,7 +80,6 @@ const PromptInput = () => {
   return (
     <div className='h-fit bg-white dark:bg-[#131314] px-4 z-10 w-[75vw] max-sm:w-full max-md:w-full flex flex-col fixed bottom-0 items-center justify-center'>
       <div className='search-box dark:bg-[#1e1f20] lg:w-[890px] md:w-[763px] max-sm:w-[90vw] px-4'>
-        <div className='flex items-start justify-center relative'>
           <textarea
             ref={textareaRef}
             placeholder={isTalking ? "Listening..." : "Enter a text here"}
@@ -95,7 +94,7 @@ const PromptInput = () => {
             }}
           />
 
-          <div className='flex gap-x-2  items-center mt-[0.5em]'>
+          <div className='flex gap-x-2  items-center'>
             <ActionTooltip align='center' side='top' label='Upload Image'>
               <span className='rounded-full w-[50px] h-[50px] dark:hover:bg-[#37393b] hover:bg-slate-200 px-2 py-2 flex items-center justify-center'>
                 <assets.AddPhotoIcon
@@ -155,7 +154,6 @@ const PromptInput = () => {
               </ActionTooltip>
             )}
           </div>
-        </div>
       </div>
 
       <p className='mx-auto my-15px text-[14px] text-center dark:text-[#c4c7c5] text-black font-normal mt-[0.5em] mb-[0.5em] gap-x-2'>
