@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 import { Message } from "@/types/conversation-types";
+import { createDynamicPromptInput } from "@/lib/langchain";
 import axios from "axios";
 
 export const sendUserPropmtToAI = createAsyncThunk<
@@ -49,13 +50,13 @@ export const sendUserPropmtToAI = createAsyncThunk<
     }
 
     try {
-      const response = await axios.post<{ data: string }>("/api/generate", {
-        prompt: fullPrompt,
-      });
+      const response = await createDynamicPromptInput(fullPrompt);
+      console.log("response data", response as string);
+
       return {
         id: messageId || "newMessageId",
         sender: "ai",
-        text: response.data.data,
+        text: response as string,
       };
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
