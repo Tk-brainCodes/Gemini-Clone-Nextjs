@@ -174,6 +174,12 @@ const ChatResponse = () => {
       console.log("error generating google searches", error);
     }
   };
+  
+
+  const handleCopyClick = (value: string) => {
+    navigator.clipboard.writeText(value);
+    toast("Copied to clipboard");
+  };
 
   return (
     <div>
@@ -189,7 +195,7 @@ const ChatResponse = () => {
               {session.messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`my-10 w-full px-4 max-w-[100vw] md:max-w-[80vw] lg:max-w-[60vw] flex flex-col items-center justify-center  ${
+                  className={`my-10 w-full px-4 max-w-[100vw] md:max-w-[80vw] lg:w-[762px] flex flex-col items-center justify-center  ${
                     message.sender === "ai" ? "flex-row-reverse" : ""
                   }`}
                 >
@@ -384,13 +390,6 @@ const ChatResponse = () => {
                                 height={24}
                               />
                             </Button>
-                            <Button disabled>
-                              <assets.Tune
-                                className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
-                                width={24}
-                                height={24}
-                              />
-                            </Button>
                             <Button>
                               <assets.Share
                                 className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
@@ -428,22 +427,34 @@ const ChatResponse = () => {
                                   />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent className='px-2 py-2 border-none rounded-md flex flex-col gap-[10px] bg-[#e9eef6] dark:bg-[#444746] shadow-md'>
-                                <DropdownMenuItem className='flex gap-x-4'>
-                                  <assets.ContentCopyIcon
-                                    className='fill-[#1f1f1f] w-[20px] h-[20px] dark:fill-white'
-                                    width={24}
-                                    height={24}
-                                  />
-                                  <span>Copy</span>
+                              <DropdownMenuContent className='px-4 py-4 border-none rounded-md flex flex-col gap-[10px] bg-[#e9eef6] dark:bg-[#444746] shadow-md'>
+                                <DropdownMenuItem>
+                                  <Button
+                                    onClick={() =>
+                                      handleCopyClick(message.text)
+                                    }
+                                    className='bg-transparent flex gap-x-4'
+                                  >
+                                    <assets.ContentCopyIcon
+                                      className='fill-[#1f1f1f] w-[20px] h-[20px] dark:fill-white'
+                                      width={24}
+                                      height={24}
+                                    />
+                                    <span>Copy</span>
+                                  </Button>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className='flex gap-x-4'>
-                                  <assets.Flag
-                                    className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
-                                    width={24}
-                                    height={24}
-                                  />
-                                  <span>Report legal issues</span>
+                                <DropdownMenuItem>
+                                  <Button
+                                    disabled
+                                    className='bg-transparent flex gap-x-4'
+                                  >
+                                    <assets.Flag
+                                      className='fill-[#1f1f1f]  w-[20px] h-[20px] dark:fill-white'
+                                      width={24}
+                                      height={24}
+                                    />
+                                    <span>Report legal issues</span>
+                                  </Button>
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -462,22 +473,22 @@ const ChatResponse = () => {
                   </div>
                 </div>
               ))}
-              {status === "loading" && (
-                <div className='flex items-start justify-start gap-x-4'>
-                  <Image
-                    src={assets.gemini_icon}
-                    alt='gemini_icon'
-                    className='w-[34px] h-[34px] spin_animation rounded-full -mt-[0.4em] '
-                  />
-                  <div className='flex items-start gap-[20px]'>
-                    <div className='w-[700px] flex flex-col gap-[12px] mb-[1em]'>
-                      <hr className='skeleton-loader' />
-                      <hr className='skeleton-loader' />
-                      <hr className='skeleton-loader w-[70%]' />
-                    </div>
-                  </div>
+          {status === "loading" && (
+            <div className="flex flex-col md:flex-row items-start justify-start gap-4">
+              <Image
+                src={assets.gemini_icon}
+                alt="gemini_icon"
+                className="w-8 h-8 md:w-9 md:h-9 spin_animation rounded-full mt-0 md:-mt-1"
+              />
+              <div className="flex items-start gap-5 md:gap-8 w-full md:w-auto">
+                <div className="loading_div w-full md:w-[700px] flex flex-col gap-3 md:gap-4 mb-4 md:mb-6">
+                  <hr className="skeleton-loader w-full" />
+                  <hr className="skeleton-loader w-full" />
+                  <hr className="skeleton-loader w-3/4" />
                 </div>
-              )}
+              </div>
+            </div>
+          )}
             </div>
           ))}
         <div ref={messageContainerRef} className='mb-[1em]' />
