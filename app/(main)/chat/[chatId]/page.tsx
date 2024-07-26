@@ -11,8 +11,6 @@ import {
   updateUserMessage,
 } from "@/redux/conversationSlice";
 import { fetchChatsSession } from "@/redux/conversationThunk";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { atelierForestDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Image from "next/image";
@@ -34,64 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import PromptGoogleSearches from "@/components/google-search/prompt-google-searches";
-
-const CodeBlock = ({
-  language,
-  value,
-  theme,
-}: {
-  language: string;
-  value: string;
-  theme: string;
-}) => {
-  const handleCopyClick = () => {
-    navigator.clipboard.writeText(value);
-    toast("Copied to clipboard");
-  };
-
-  const customStyles = {
-    fontFamily: '"Google Sans", sans-serif',
-    fontsize: "18px",
-    fontWeight: 400,
-    lineHeight: "18px",
-    padding: " 16px 16px 22px",
-    backgroundColor: theme === "light" ? "#f0f4f9" : "#1e1f20",
-    borderRadius: "12px 12px 0px 0px",
-  };
-
-  return (
-    <div className=''>
-      <SyntaxHighlighter
-        style={atelierForestDark}
-        language={language}
-        customStyle={customStyles}
-        PreTag='div'
-        wrapLines={true}
-      >
-        {value}
-      </SyntaxHighlighter>
-      <div
-        className={cn(
-          "copy_content w-full mt-1 px-4 py-4 h-[40px] flex items-center justify-between",
-          theme === "light" ? "bg-[#f0f4f9]" : "bg-[#1e1f20]"
-        )}
-      >
-        <div className='leading-[16px] text-[16px] font-normal flex text-[#444746] gap-x-2'>
-          Use code
-          <a className='text-underline text-[#0b57d0] cursor-pointer'>
-            with caution
-          </a>
-        </div>
-        <assets.ContentCopyIcon
-          onClick={handleCopyClick}
-          className='cursor-pointer fill-[#1f1f1f] dark:fill-white'
-          width={24}
-          height={24}
-        />
-      </div>
-    </div>
-  );
-};
+import CodeBlock from "@/components/code-block/code-block";
 
 const ChatResponse = () => {
   const { isSpeaking, isPaused, speak, pause, resume } = useSpeechSynthesis();
@@ -174,7 +115,6 @@ const ChatResponse = () => {
       console.log("error generating google searches", error);
     }
   };
-  
 
   const handleCopyClick = (value: string) => {
     navigator.clipboard.writeText(value);
@@ -473,22 +413,22 @@ const ChatResponse = () => {
                   </div>
                 </div>
               ))}
-          {status === "loading" && (
-            <div className="flex flex-col md:flex-row items-start justify-start gap-4">
-              <Image
-                src={assets.gemini_icon}
-                alt="gemini_icon"
-                className="w-8 h-8 md:w-9 md:h-9 spin_animation rounded-full mt-0 md:-mt-1"
-              />
-              <div className="flex items-start gap-5 md:gap-8 w-full md:w-auto">
-                <div className="loading_div w-full md:w-[700px] flex flex-col gap-3 md:gap-4 mb-4 md:mb-6">
-                  <hr className="skeleton-loader w-full" />
-                  <hr className="skeleton-loader w-full" />
-                  <hr className="skeleton-loader w-3/4" />
+              {status === "loading" && (
+                <div className='flex flex-col md:flex-row items-start justify-start gap-4'>
+                  <Image
+                    src={assets.gemini_icon}
+                    alt='gemini_icon'
+                    className='w-8 h-8 md:w-9 md:h-9 spin_animation rounded-full mt-0 md:-mt-1'
+                  />
+                  <div className='flex items-start gap-5 md:gap-8 w-full md:w-auto'>
+                    <div className='loading_div w-full md:w-[700px] flex flex-col gap-3 md:gap-4 mb-4 md:mb-6'>
+                      <hr className='skeleton-loader w-full' />
+                      <hr className='skeleton-loader w-full' />
+                      <hr className='skeleton-loader w-3/4' />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
             </div>
           ))}
         <div ref={messageContainerRef} className='mb-[1em]' />
