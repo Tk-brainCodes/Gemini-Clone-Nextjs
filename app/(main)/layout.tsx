@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { selectStatus, setOpen } from "@/redux/conversationSlice";
+import { selectStatus, setOpen, startNewSession } from "@/redux/conversationSlice";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,9 +22,15 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const status = useAppSelector(selectStatus);
   const pathname = usePathname();
   const dispatch = useAppDispatch();
+  const router = useRouter()
 
   const handleToggle = () => {
     dispatch(setOpen());
+  };
+
+  const handleNewChat = () => {
+    dispatch(startNewSession());
+    router.push(`/new-chat`);
   };
 
   return (
@@ -70,6 +77,25 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             </DropdownMenu>
 
             <div className='flex gap-x-4'>
+              <Button
+                className='bg-[#dde3ea] px-2 py-2 dark:bg-[#37393b] hidden max-sm:flex max-md:flex items-center justify-center rounded-full hover:bg-[#c0c3c6]'
+                disabled={pathname === "/new-chat" ? true : false}
+                onClick={handleNewChat}
+              >
+                <assets.PlusIcon
+                  width={24}
+                  height={24}
+                  className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                />
+              </Button>
+
+              <Button className='hidden max-sm:flex px-2 py-2 max-md:flex items-center justify-center rounded-full hover:bg-[#c0c3c6]'>
+                <assets.OptionIcon
+                  width={24}
+                  height={24}
+                  className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
+                />
+              </Button>
               <Button className='bg-[#dde3ea] dark:bg-[#37393b] max-sm:hidden max-md:hidden dark:text-white text-[#000000] font-normal flex gap-x-3 rounded-[10px] hover:bg-[#c0c3c6]'>
                 <Image
                   src={assets.gemini_sparkle}
@@ -79,6 +105,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
                 />
                 Try Gemini Advanced
               </Button>
+
               <ActionTooltip align='center' side='bottom' label='Google apps'>
                 <Button className='w-[40px] h-[40px] max-sm:hidden max-md:hidden bg-none hover:bg-slate-400 rounded-full dark:hover:bg-[#37393b] px-2 py-2 flex items-center justify-center'>
                   <assets.GoogleAppsIcon
