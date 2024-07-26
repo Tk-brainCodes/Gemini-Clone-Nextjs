@@ -6,7 +6,7 @@ import {
 } from "@langchain/core/prompts";
 
 const model = new ChatGoogleGenerativeAI({
-  apiKey: `${process.env.GOOGLE_API_KEY}`,
+  apiKey: `${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
   temperature: 0.7,
   model: "gemini-1.5-pro-latest",
   maxOutputTokens: 8192,
@@ -20,48 +20,48 @@ const model = new ChatGoogleGenerativeAI({
   ],
 });
 
-export const createShortTitlePrompts = async (prompts: string[]) => {
-  const results = [];
+// export const createShortTitlePrompts = async (prompts: string[]) => {
+//   const results = [];
 
-  const examples = [
-    {
-      input:
-        "in a tabular format, give me the difference between rust and javascript",
-      output: "Rust vs. Javascript",
-    },
-    {
-      input:
-        "write a code to Create a recipe for a low-carb meal with the following ingredients I have in my fridge: cauliflower, and cucumber in react",
-      output: "React Recipe Display",
-    },
-    {
-      input: "give me the history of algeria",
-      output: "A Brief History of Algeria",
-    },
-  ];
+//   const examples = [
+//     {
+//       input:
+//         "in a tabular format, give me the difference between rust and javascript",
+//       output: "Rust vs. Javascript",
+//     },
+//     {
+//       input:
+//         "write a code to Create a recipe for a low-carb meal with the following ingredients I have in my fridge: cauliflower, and cucumber in react",
+//       output: "React Recipe Display",
+//     },
+//     {
+//       input: "give me the history of algeria",
+//       output: "A Brief History of Algeria",
+//     },
+//   ];
 
-  const examplePrompt = ChatPromptTemplate.fromTemplate(`Human: {input}
-{output}`);
-  const fewShotPrompt = new FewShotChatMessagePromptTemplate({
-    prefix:
-      "Produce a short and concise title description, following the examples given",
-    suffix: "Human: {input}",
-    examplePrompt,
-    examples,
-    inputVariables: ["input"],
-  });
+//   const examplePrompt = ChatPromptTemplate.fromTemplate(`Human: {input}
+// {output}`);
+//   const fewShotPrompt = new FewShotChatMessagePromptTemplate({
+//     prefix:
+//       "Produce a short and concise title description, following the examples given",
+//     suffix: "Human: {input}",
+//     examplePrompt,
+//     examples,
+//     inputVariables: ["input"],
+//   });
 
-  for (const prompt of prompts) {
-    const formattedPrompt = await fewShotPrompt.format({
-      input: prompt,
-    });
+//   for (const prompt of prompts) {
+//     const formattedPrompt = await fewShotPrompt.format({
+//       input: prompt,
+//     });
 
-    const responses = await model.invoke(formattedPrompt);
-    results.push(responses.content);
-  }
+//     const responses = await model.invoke(formattedPrompt);
+//     results.push(responses.content);
+//   }
 
-  return results;
-};
+//   return results;
+// };
 
 export const generateGoogleSearch = async (text: string) => {
   const examples = [
