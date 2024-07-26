@@ -22,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ChatOptionsDropdown from "../dropdowns/chat-options-dropdown";
-import axios from "axios";
 import useDarkMode from "@/hooks/toggle-theme";
 import Switch from "@mui/material/Switch";
 
@@ -33,7 +32,6 @@ const SidebarDrawer = () => {
   const sessions = useAppSelector(selectSessions);
   const open = useAppSelector(isOpen);
   const currentSessionPathId = pathname.split("/").pop();
-  const [titles, setTitles] = useState<any[]>([]);
   const { darkMode, handleSetDarkMode, handleSetLightMode } = useDarkMode();
 
   const handleNewChat = () => {
@@ -60,48 +58,6 @@ const SidebarDrawer = () => {
   const handleToggle = () => {
     dispatch(setOpen());
   };
-
-  // const fetchTitles = useCallback(async (prompts: string[]) => {
-  //   try {
-  //     const response = await axios.post("/api/get-title", { prompts });
-
-  //     if (response.status !== 200) {
-  //       throw new Error("Failed to fetch titles");
-  //     }
-
-  //     setTitles(response.data.titles);
-  //   } catch (error) {
-  //     console.error("Error fetching titles:", error);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const prompts = sessions
-  //     .map((session) => {
-  //       if (
-  //         session.messages.length > 0 &&
-  //         session.messages[0].sender === "user"
-  //       ) {
-  //         return session.messages[0].text;
-  //       }
-  //       return null;
-  //     })
-  //     .filter((prompt) => prompt !== null);
-
-  //   console.log("sent prompts", prompts);
-
-  //   if (prompts.length > 0) {
-  //     fetchTitles(prompts);
-  //   }
-  // }, [fetchTitles, sessions]);
-
-  // const removeSpecialCharacters = (str: string) => {
-  //   return str.replace(/[^\w\s]/gi, "").replace(/\n/g, "");
-  // };
-
-  // const cleanedArray = titles.map(removeSpecialCharacters);
-
-  // console.log("titles", cleanedArray);
 
   const handleToggleTheme = () => {
     if (darkMode) {
