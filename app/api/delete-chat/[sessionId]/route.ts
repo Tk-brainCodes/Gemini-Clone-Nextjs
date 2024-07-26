@@ -11,7 +11,7 @@ export async function DELETE(
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
-
+ 
   if (!params.sessionId) {
     return new NextResponse("Session ID is required", { status: 400 });
   }
