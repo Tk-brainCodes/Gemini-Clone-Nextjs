@@ -74,7 +74,7 @@ export async function POST(req: Request, res: NextResponse) {
   }
 }
 
-export async function GET(req: NextApiRequest, res: NextResponse) {
+export async function GET(req: Request, res: NextResponse) {
   const profile = await currentProfile();
 
   if (!profile) {
@@ -92,4 +92,3 @@ export async function GET(req: NextApiRequest, res: NextResponse) {
     return new NextResponse("Failed to get messages", { status: 500 });
   }
 }
-
