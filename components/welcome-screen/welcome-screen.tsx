@@ -20,11 +20,11 @@ const WelcomeScreen = (props: Props) => {
           How can I help you today?
         </p>
       </span>
-      <div className='flex items-center justify-start gap-x-3 mt-[7em] mb-[3em]'>
+      <div className='grid grid-cols-4 max-sm:grid-cols-1 max-md:grid-cols-2 gap-[15px] mt-[7em] mb-[3em]'>
         {static_data.map(({ prompt, icon: Icon }: StaticDataItem) => (
           <div
             key={prompt}
-            className='h-[230px] w-[230px] p-[15px] bg-[#f0f4f9] dark:hover:bg-[#333537] dark:bg-[#1e1f20] rounded-[13px] relative cursor-pointer hover:bg-[#dfe4ed]'
+            className='h-[230px] w-[230px] p-[15px] max-sm:w-full max-md:w-[300px]  bg-[#f0f4f9] dark:hover:bg-[#333537] dark:bg-[#1e1f20] rounded-[13px] relative cursor-pointer hover:bg-[#dfe4ed]'
           >
             <p className='prompt-text-content dark:text-white text-[#1F1F1F] text-[16px] flex flex-col items-start'>
               {prompt}
