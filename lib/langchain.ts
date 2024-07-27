@@ -8,7 +8,7 @@ import {
 const model = new ChatGoogleGenerativeAI({
   apiKey: `${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
   temperature: 0.7,
-  model: "gemini-1.5-flash",
+  model: "gemini-1.5-pro-latest",
   maxOutputTokens: 8192,
   topK: 64,
   topP: 0.95,
@@ -86,7 +86,7 @@ export const generateGoogleSearch = async (text: string) => {
   );
   const fewShotPrompt = new FewShotChatMessagePromptTemplate({
     prefix:
-      " Generate bewtween 1 and 10 important related google search title. Make it sound more human. Do not add any extra text and do not number them, only return the google search questions",
+      " Generate bewtween 1 and 10 important related google search title. Make it sound more human. Do not add any extra text and do not number them, only return the google search questions. Do not include the provided examples in the result",
     suffix: "Human: {input}",
     examplePrompt,
     examples,
@@ -105,9 +105,9 @@ export const generateGoogleSearch = async (text: string) => {
 
 export const createDynamicPromptInput = async (prompt: string) => {
   try {
-  const res = await model.invoke([["human", `${prompt}`]]);
-  return res.content;
-  } catch(error) {
-    console.log("something went wrong:", error )
+    const res = await model.invoke([["human", `${prompt}`]]);
+    return res.content;
+  } catch (error) {
+    console.log("something went wrong:", error);
   }
 };
