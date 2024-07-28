@@ -78,7 +78,8 @@ const ChatResponse = () => {
   const handleReadAloud = (text: string, messageId: string | null) => {
     if (!isSpeaking) {
       setLoading(true);
-      speak(text.replace(/[^\w\s]/gi, "").replace(/\n/g, ""));
+      //remove any special characters from the text
+      speak(text.replace(/[^\w\s]/gi, ""));
       setAudioMessageId(messageId);
       setLoading(false);
     } else if (isPaused) {
@@ -108,6 +109,7 @@ const ChatResponse = () => {
       setLoadingSearch(true);
 
       const response = await generateGoogleSearch(text);
+      //remove any special characters and split each search result to a new line
       const reponseArray = response.replace(/[^\w\s]/gi, "").split("\n");
       setGeneratedPromptSearch(reponseArray);
       setLoadingSearch(false);

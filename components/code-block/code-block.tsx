@@ -45,7 +45,7 @@ const CodeBlock = ({
           theme === "light" ? "bg-[#f0f4f9]" : "bg-[#1e1f20]"
         )}
       >
-        <div className='leading-[16px] text-[16px] font-normal flex text-[#444746] gap-x-2'>
+        <div className='leading-[16px] text-[16px] font-normal flex text-[#444746] dark:text-white gap-x-2'>
           Use code
           <a className='text-underline text-[#0b57d0] cursor-pointer'>
             with caution
