@@ -3,7 +3,11 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { selectStatus, setOpen, startNewSession } from "@/redux/conversationSlice";
+import {
+  selectStatus,
+  setOpen,
+  startNewSession,
+} from "@/redux/conversationSlice";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -22,7 +26,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const status = useAppSelector(selectStatus);
   const pathname = usePathname();
   const dispatch = useAppDispatch();
-  const router = useRouter()
+  const router = useRouter();
 
   const handleToggle = () => {
     dispatch(setOpen());
