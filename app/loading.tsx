@@ -16,7 +16,7 @@ const LoadingScreen = () => {
   }, []);
 
   return (
-    <div className='w-full h-full flex flex-col items-center justify-center'>
+    <div className='w-[100vw] h-[100vh] flex flex-col items-center justify-center'>
       {loading && (
         <Image
           src={assets.ChatLoadingAnimation}
