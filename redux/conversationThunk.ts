@@ -6,11 +6,14 @@ import axios from "axios";
 
 export const sendUserPropmtToAI = createAsyncThunk<
   Message,
-  { prompt: string; isEdited?: boolean; messageId?: string },
+  { prompt: string; isEdited?: boolean; messageId?: string; image?: string },
   { rejectValue: string; state: RootState }
 >(
   "conversation/sendUserPropmtToAI",
-  async ({ prompt, isEdited, messageId }, { rejectWithValue, getState }) => {
+  async (
+    { prompt, isEdited, messageId, image },
+    { rejectWithValue, getState }
+  ) => {
     const state = getState() as RootState;
 
     // Check if there is a current session
@@ -27,7 +30,7 @@ export const sendUserPropmtToAI = createAsyncThunk<
     if (isEdited && messageId) {
       // Replace the old message with the new one
       const messageIndex = currentSession.messages.findIndex(
-        (m) => m.id === messageId
+        (message) => message.id === messageId
       );
       if (messageIndex !== -1) {
         const updatedMessages = [...currentSession.messages];
@@ -50,8 +53,7 @@ export const sendUserPropmtToAI = createAsyncThunk<
     }
 
     try {
-      const response = await createDynamicPromptInput(fullPrompt);
-      console.log("response data", response as string);
+      const response = await createDynamicPromptInput(fullPrompt, image);
 
       return {
         id: messageId || "newMessageId",
