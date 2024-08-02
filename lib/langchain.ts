@@ -4,6 +4,7 @@ import {
   ChatPromptTemplate,
   FewShotChatMessagePromptTemplate,
 } from "@langchain/core/prompts";
+import { HumanMessage } from "@langchain/core/messages";
 
 const model = new ChatGoogleGenerativeAI({
   apiKey: `${process.env.NEXT_PUBLIC_GOOGLE_API_KEY}`,
@@ -103,10 +104,33 @@ export const generateGoogleSearch = async (text: string) => {
   return responseText;
 };
 
-export const createDynamicPromptInput = async (prompt: string) => {
+export const createDynamicPromptInput = async (
+  prompt: string,
+  image: string | undefined
+) => {
   try {
-    const res = await model.invoke([["human", `${prompt}`]]);
-    return res.content;
+    if (image) {
+      const input = [
+        new HumanMessage({
+          content: [
+            {
+              type: "text",
+              text: "Describe the following image.",
+            },
+            {
+              type: "image_url",
+              image_url: `data:image/png;base64,${image.split(",")[1]}`,
+            },
+          ],
+        }),
+      ];
+
+      const res = await model.invoke(input);
+      return res.content;
+    } else {
+      const res = await model.invoke([["human", `${prompt}`]]);
+      return res.content;
+    }
   } catch (error) {
     console.log("something went wrong:", error);
   }
