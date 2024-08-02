@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import ActionTooltip from "@/components/action-tooltip";
 import { assets } from "@/assets";
 import { useRouter, usePathname } from "next/navigation";
-import { setCurrentSession } from "@/redux/conversationSlice";
+import {
+  setCurrentSession,
+  selectCurrentSession,
+} from "@/redux/conversationSlice";
 import {
   startNewSession,
   selectSessions,
@@ -21,6 +24,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import axios from "axios";
 import ChatOptionsDropdown from "../dropdowns/chat-options-dropdown";
 import useDarkMode from "@/hooks/toggle-theme";
 import Switch from "@mui/material/Switch";
@@ -33,6 +38,8 @@ const SidebarDrawer = () => {
   const open = useAppSelector(isOpen);
   const currentSessionPathId = pathname.split("/").pop();
   const { darkMode, handleSetDarkMode, handleSetLightMode } = useDarkMode();
+  const [loadingDelete, setDeleteLoading] = useState(false);
+  const currentSession = useAppSelector(selectCurrentSession);
 
   const handleNewChat = () => {
     dispatch(startNewSession());
@@ -52,8 +59,11 @@ const SidebarDrawer = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    if (!loadingDelete) {
+      memoizedFetchSession();
+    }
     memoizedFetchSession();
-  }, [memoizedFetchSession]);
+  }, [memoizedFetchSession, loadingDelete]);
 
   const handleToggle = () => {
     dispatch(setOpen());
@@ -64,6 +74,19 @@ const SidebarDrawer = () => {
       handleSetLightMode();
     } else {
       handleSetDarkMode();
+    }
+  };
+
+  const handleDeleteChatSessions = async () => {
+    try {
+      setDeleteLoading(true);
+      await axios.delete(`/api/delete-chat/${currentSession?.id}`);
+      toast("Chat Deleted Successfully");
+      router.push("/new-chat");
+    } catch (error) {
+      console.log("[DELETE_ERROR]", error);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -143,9 +166,11 @@ const SidebarDrawer = () => {
                                 ? "text-[#041e49] dark:text-[#c2e7ff] dark:bg-[#004a77] bg-[#d3e3fd]"
                                 : "hover:bg-[#E9EEF6] dark:hover:bg-[#444746]"
                             )}
-                            onClick={() => handleSessionClick(session.id)}
                           >
-                            <span className='flex items-center gap-x-4 justify-center w-full'>
+                            <span
+                              onClick={() => handleSessionClick(session.id)}
+                              className='flex items-center gap-x-4 justify-center w-full'
+                            >
                               <assets.ChatBubbleIcon
                                 className='cursor-pointer duration-500 fill-[#1f1f1f] w-[16px] h-[16px] mt-1 dark:fill-white'
                                 width={24}
@@ -158,7 +183,10 @@ const SidebarDrawer = () => {
                                   : null}
                               </p>
                             </span>
-                            <ChatOptionsDropdown>
+                            <ChatOptionsDropdown
+                              loadingDelete={loadingDelete}
+                              handleDelete={handleDeleteChatSessions}
+                            >
                               <span
                                 className={cn(
                                   "absolute right-2 w-[28px] h-[28px] hidden group-hover:flex items-center justify-center rounded-full -mt-[15px]",
