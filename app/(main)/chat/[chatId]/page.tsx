@@ -25,6 +25,7 @@ import { useTheme } from "next-themes";
 import { generateGoogleSearch } from "@/lib/langchain";
 import useSpeechSynthesis from "@/hooks/read-audio";
 import ActionTooltip from "@/components/action-tooltip";
+import TextTypewriter from "@/components/typewriter/text-typewriter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -281,8 +282,6 @@ const ChatResponse = () => {
                           components={{
                             code({
                               node,
-                              //@ts-ignore
-                              inline,
                               className,
                               children,
                               ...props
@@ -290,7 +289,7 @@ const ChatResponse = () => {
                               const match = /language-(\w+)/.exec(
                                 className || ""
                               );
-                              return !inline && match ? (
+                              return match ? (
                                 <CodeBlock
                                   language={match[1]}
                                   value={String(children).replace(/\n$/, "")}
@@ -311,8 +310,9 @@ const ChatResponse = () => {
                               );
                             },
                           }}
-                        >
-                          {message.text}
+                        > 
+                        {message.text}
+                          {/* <TextTypewriter text={message.text}/> */}
                         </ReactMarkdown>
                       )}
                       {message.sender === "ai" && (
@@ -433,7 +433,7 @@ const ChatResponse = () => {
               )}
             </div>
           ))}
-        <div ref={messageContainerRef} className='mb-[1em]' />
+        <div ref={messageContainerRef} className='mb-[3em]' />
       </div>
     </div>
   );
