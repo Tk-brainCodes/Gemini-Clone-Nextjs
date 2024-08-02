@@ -1,11 +1,9 @@
-import { ReactNode, useState } from "react";
-import { useAppSelector } from "@/redux/hooks";
-import { selectCurrentSession } from "@/redux/conversationSlice";
-import { useRouter } from "next/navigation";
+"use client"
+
+import { ReactNode } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
@@ -19,29 +17,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { assets } from "@/assets";
 import Link from "next/link";
-import axios from "axios";
 
-const ChatOptionsDropdown = ({ children }: { children: ReactNode }) => {
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const currentSession = useAppSelector(selectCurrentSession);
-
-  const handleDeleteChatSessions = async () => {
-    try {
-      setLoading(true);
-      await axios.delete(`/api/delete-chat/${currentSession?.id}`);
-      toast("Chat Deleted Successfully");
-      router.push("/new-chat");
-    } catch (error) {
-      console.log("[DELETE_ERROR]", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+const ChatOptionsDropdown = ({
+  loadingDelete,
+  handleDelete,
+  children,
+}: {
+  loadingDelete: boolean;
+  handleDelete: any;
+  children: ReactNode;
+}) => {
   return (
     <>
       <DropdownMenu>
@@ -50,14 +37,14 @@ const ChatOptionsDropdown = ({ children }: { children: ReactNode }) => {
           side='right'
           className='w-[150px] h-[128.667px] shadow-[20px] border-none border-0 bg-[#e9eef6] dark:bg-[#444746]'
         >
-          <DropdownMenuItem className='flex gap-x-3'>
+          <Button className='flex gap-x-3 bg-transparent'>
             <assets.Pin className='fill-black dark:fill-white' />
             <span>Pin</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className='flex gap-x-3'>
+          </Button>
+          <Button className='flex gap-x-3 bg-transparent'>
             <assets.EditIcon className='fill-black dark:fill-white' />
             <span>Rename</span>
-          </DropdownMenuItem>
+          </Button>
           <DropdownMenuSeparator className='bg-[#444746]' />
           <Dialog>
             <DialogTrigger asChild>
@@ -86,11 +73,11 @@ const ChatOptionsDropdown = ({ children }: { children: ReactNode }) => {
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleDeleteChatSessions}
+                  onClick={handleDelete}
                   className='text-[#8ab4f8] hover:text-[#aecbfa] px-2 py-2 hover:bg-[#131314]'
-                  disabled={loading}
+                  disabled={loadingDelete}
                 >
-                  {loading ? (
+                  {loadingDelete ? (
                     <span className='flex gap-x-3'>
                       <assets.ProgressActivityIcon className='fill-blue-300 dark:fill-white animate-spin' />
                       Deleting...
