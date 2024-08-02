@@ -37,9 +37,10 @@ import { ReactComponent as ThumbsDown } from "./icons/thumb_down.svg";
 import { ReactComponent as Share } from "./icons/share.svg";
 import { ReactComponent as Flag } from "./icons/flag.svg";
 import { ReactComponent as Search } from "./icons/search.svg";
+import { ReactComponent as Close } from "./icons/close.svg";
+
+
 import { default as ChatLoadingAnimation } from "./icons/gemini-loading.gif";
-
-
 
 import UserIcon from "./icons/user_icon.png";
 import gemini_icon from "./icons/gemini_icon.png";
@@ -89,4 +90,5 @@ export const assets = {
   Flag,
   Search,
   ChatLoadingAnimation,
+  Close
 };
