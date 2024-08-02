@@ -1,3 +1,5 @@
+"use client"
+
 import { assets } from "@/assets";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atelierForestDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
