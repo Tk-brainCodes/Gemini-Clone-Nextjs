@@ -39,7 +39,7 @@ const SidebarDrawer = () => {
   const currentSessionPathId = pathname.split("/").pop();
   const { darkMode, handleSetDarkMode, handleSetLightMode } = useDarkMode();
   const [loadingDelete, setDeleteLoading] = useState(false);
-  const currentSession = useAppSelector(selectCurrentSession);
+  const currentSession = useAppSelector(selectCurrentSession); 
 
   const handleNewChat = () => {
     dispatch(startNewSession());
