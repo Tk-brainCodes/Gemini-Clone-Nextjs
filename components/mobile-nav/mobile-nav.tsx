@@ -10,10 +10,7 @@ import {
   setCurrentSession,
   selectCurrentSession,
 } from "@/redux/conversationSlice";
-import {
-  selectSessions,
-  isOpen,
-} from "@/redux/conversationSlice";
+import { selectSessions, isOpen } from "@/redux/conversationSlice";
 import { fetchChatsSession } from "@/redux/conversationThunk";
 import {
   DropdownMenu,
@@ -22,10 +19,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
-import ChatOptionsDropdown from "../dropdowns/chat-options-dropdown";
 import useDarkMode from "@/hooks/toggle-theme";
 import Switch from "@mui/material/Switch";
+import Image from "next/image";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -89,7 +87,7 @@ const MobileNav = ({ children }: { children: ReactNode }) => {
  dark:bg-[#1e1f20] border-none'
         side='left'
       >
-        <div className="flex items-center justify-between flex-col h-full">
+        <div className='flex items-center justify-between flex-col h-full'>
           <div className='w-full'>
             <>
               <li className='text-[14px] dark:text-white list-none font-semibold leading-[20px] text-[#1f1f1f] mt-6'>
@@ -112,7 +110,7 @@ const MobileNav = ({ children }: { children: ReactNode }) => {
                       >
                         <li
                           className={cn(
-                            "relative w-[260px] dark:text-white text-[14px] gap-[10px] flex items-center justify-between list-none group font-normal p-2 pl-4 py-2 rounded-[30px] leading-[20px] text-[#444746] mt-2 cursor-pointer",
+                            "relative w-full dark:text-white text-[14px] gap-[10px] flex items-center justify-between list-none group font-normal p-2 pl-4 py-2 rounded-[30px] leading-[20px] text-[#444746] mt-2 cursor-pointer",
                             currentSessionPathId === session.id
                               ? "text-[#041e49] dark:text-[#c2e7ff] dark:bg-[#004a77] bg-[#d3e3fd]"
                               : "hover:bg-[#E9EEF6] dark:hover:bg-[#444746]"
@@ -134,25 +132,6 @@ const MobileNav = ({ children }: { children: ReactNode }) => {
                                 : null}
                             </p>
                           </span>
-                          <ChatOptionsDropdown
-                            loadingDelete={loadingDelete}
-                            handleDelete={handleDeleteChatSessions}
-                          >
-                            <span
-                              className={cn(
-                                "absolute right-2 w-[28px] h-[28px] hidden group-hover:flex items-center justify-center rounded-full -mt-[15px]",
-                                currentSessionPathId !== session.id
-                                  ? "hover:bg-slate-300 dark:hover:bg-[#37393b]"
-                                  : "hover:bg-white dark:hover:bg-[#c2e7ff]"
-                              )}
-                            >
-                              <assets.OptionIcon
-                                width={24}
-                                height={24}
-                                className='cursor-pointer duration-500 fill-[#1f1f1f] dark:fill-white'
-                              />
-                            </span>
-                          </ChatOptionsDropdown>
                         </li>
                       </ActionTooltip>
                     </>
@@ -273,6 +252,16 @@ const MobileNav = ({ children }: { children: ReactNode }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            <Button className='bg-[#dde3ea] mt-[20px] dark:bg-[#37393b] max-sm:hidden max-md:hidden dark:text-white text-[#000000] font-normal flex gap-x-3 rounded-[10px] hover:bg-[#c0c3c6]'>
+              <Image
+                src={assets.gemini_sparkle}
+                alt='gemini_sparkel'
+                width={24}
+                height={24}
+              />
+              Try Gemini Advanced
+            </Button>
           </ul>
         </div>
       </SheetContent>
