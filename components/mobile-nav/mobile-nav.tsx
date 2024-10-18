@@ -253,7 +253,7 @@ const MobileNav = ({ children }: { children: ReactNode }) => {
               </DropdownMenu>
             </div>
 
-            <Button className='bg-[#dde3ea] mt-[20px] dark:bg-[#37393b] max-sm:hidden max-md:hidden dark:text-white text-[#000000] font-normal flex gap-x-3 rounded-[10px] hover:bg-[#c0c3c6]'>
+            {/* <Button className='bg-[#dde3ea] mt-[20px] dark:bg-[#37393b] max-sm:hidden max-md:hidden dark:text-white text-[#000000] font-normal flex gap-x-3 rounded-[10px] hover:bg-[#c0c3c6]'>
               <Image
                 src={assets.gemini_sparkle}
                 alt='gemini_sparkel'
@@ -261,7 +261,7 @@ const MobileNav = ({ children }: { children: ReactNode }) => {
                 height={24}
               />
               Try Gemini Advanced
-            </Button>
+            </Button> */}
           </ul>
         </div>
       </SheetContent>
